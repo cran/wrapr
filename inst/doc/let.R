@@ -1,0 +1,29 @@
+## ------------------------------------------------------------------------
+x = 5
+print(5 + 1)
+print(x + 1)
+
+## ------------------------------------------------------------------------
+set.seed(1234)
+xvar = runif(100) - 0.5
+yvar = dnorm(xvar)
+
+plot(xvar, yvar) 
+
+## ------------------------------------------------------------------------
+d <- data.frame(x=c(1,NA))
+d$x
+
+## ------------------------------------------------------------------------
+library("wrapr")
+
+xvariable = "xvar"
+yvariable = "yvar"
+let(
+  list(X=xvariable, Y=yvariable),
+  { # since we have the names as strings, we can create a title
+    title = paste(yvariable, "vs", xvariable)
+    plot(X, Y, main=title)
+  }
+)
+
