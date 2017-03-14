@@ -18,6 +18,7 @@ wrapped function that captures state on error.
 }
 \description{
 Wrap fn, so it will save arguments and environment on failure.
+Please see: \code{vignette("DebugFnW", package="wrapr")}.
 }
 \examples{
 
@@ -42,8 +43,7 @@ file.remove(saveDest)
 
 }
 \seealso{
-\code{\link{DebugFn}}, \code{\link{DebugFnW}},  \code{\link{DebugFnWE}}, \code{\link{DebugPrintFn}}, \code{\link{DebugFnE}}, \code{\link{DebugPrintFnE}}
+\code{\link[utils]{dump.frames}}, \code{\link{DebugFn}}, \code{\link{DebugFnW}},  \code{\link{DebugFnWE}}, \code{\link{DebugPrintFn}}, \code{\link{DebugFnE}}, \code{\link{DebugPrintFnE}}
 
 Idea from: https://gist.github.com/nassimhaddad/c9c327d10a91dcf9a3370d30dff8ac3d
 }
-

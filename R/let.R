@@ -42,7 +42,7 @@ restrictToNameAssignments <- function(alias, restrictToAllCaps=TRUE) {
   alias[usableEntries]
 }
 
-letprep <- function(alias, strexpr) {
+prepareAlias <- function(alias, useNames) {
   # make sure alias is a list (not a named vector)
   alias <- as.list(alias)
   # confirm alias is mapping strings to strings
@@ -60,7 +60,7 @@ letprep <- function(alias, strexpr) {
       stop('wrapr:let alias keys must all be strings')
     }
     if (length(ni) != 1) {
-      stop('wrapr:let alias keys must all be strings')
+      stop('wrapr:let alias keys must all be scalars')
     }
     if (nchar(ni) <= 0) {
       stop('wrapr:let alias keys must be empty string')
@@ -72,8 +72,11 @@ letprep <- function(alias, strexpr) {
     if (is.null(vi)) {
       stop('wrapr:let alias values must not be null')
     }
+    if (is.name(vi)) {
+      vi <- as.character(vi)
+    }
     if (!is.character(vi)) {
-      stop('wrapr:let alias values must all be strings')
+      stop('wrapr:let alias values must all be strings or names')
     }
     if (length(vi) != 1) {
       stop('wrapr:let alias values must all be single strings (not arrays)')
@@ -90,10 +93,26 @@ letprep <- function(alias, strexpr) {
       }
     }
   }
+  if(useNames) {
+    alias <- lapply(alias,
+                    function(x) {
+                      if(is.name(x)) {
+                        return(x)
+                      }
+                      as.name(as.character(x))
+                    })
+  } else {
+    alias <- lapply(alias, as.character)
+  }
+  alias
+}
+
+letprep <- function(alias, strexpr) {
+  alias <- prepareAlias(alias, FALSE)
   # re-write the parse tree and prepare for execution
   body <- strexpr
   for (ni in names(alias)) {
-    value <- alias[[ni]]
+    value <- as.character(alias[[ni]])
     if(ni!=value) {
       pattern <- paste0("\\b", ni, "\\b")
       body <- gsub(pattern, value, body)
@@ -123,6 +142,12 @@ letprep <- function(alias, strexpr) {
 #' parameterized (in the sense it can work over user supplied columns and expressions), but column names are captured through non-standard evaluation
 #' (and it rapidly becomes unwieldy to use complex formulas with the standard evaluation equivalent \code{dplyr::mutate_}).
 #' \code{alias} can not include the symbol "\code{.}". Except for identity assignments keys and destinations must be disjoint.
+#'
+#'
+#' The intent from is from the user perspective to have (if
+#' \code{a <- 1; b <- 2}):
+#' \code{let(c(z = 'a'), z+b)} to behave a lot like
+#' \code{eval(substitute(z+b, c(z=quote(a))))}.
 #'
 #'
 #' @param alias mapping from free names in expr to target names to use.
@@ -160,10 +185,36 @@ letprep <- function(alias, strexpr) {
 #'
 #' @export
 let <- function(alias, expr) {
-  # capture expr
-  strexpr <- deparse(substitute(expr))
-  `_reply_reserved_name` <- letprep(alias,strexpr)
-  rm(list=setdiff(ls(all.names=TRUE),list('_reply_reserved_name')))
   # try to execute expression in parent environment
-  eval(`_reply_reserved_name`, envir=parent.frame(), enclos=parent.frame())
+  # string substitution based implementation
+  exprS <- letprep(alias, deparse(substitute(expr)))
+  eval(exprS,
+       envir=parent.frame(),
+       enclos=parent.frame())
 }
+
+# #
+# # a <- 1
+# # b <- 2
+# # # Given:
+# # let(c(z = 'a'), z+b)
+# # # Behaves a lot like:
+# # eval(substitute(z+b, c(z=quote(a))))
+# # # You would think the following below would be an easy
+# # # realization of "let".
+# # wrapr:::letSub(c(z = quote(a)), z+b)
+# # # This fails because it is hard to control the when/were
+# # # of both the substitute and eval at the same time.
+# # # Likely some form of enquote, list2env and so on
+# # # can get this to work, but it doesn't seem
+# # # attractive at this time.
+# #
+# #
+# letSub <-  function(alias, expr) {
+#   # quote based implementation, not working
+#   # pryr::subs() works about the same
+#   # pryr::substitute_q() might fix
+#   eval(substitute(expr, alias),
+#        envir=parent.frame(),
+#        enclos=parent.frame())
+# }

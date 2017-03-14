@@ -18,6 +18,7 @@ fn(...) normally, but if fn(...) throws an exception save to saveDest RDS of lis
 }
 \description{
 Run fn, save arguments on failure.
+Please see: \code{vignette("DebugFnW", package="wrapr")}.
 }
 \examples{
 
@@ -41,6 +42,5 @@ file.remove(saveDest)
 
 }
 \seealso{
-\code{\link{DebugFn}}, \code{\link{DebugFnW}},  \code{\link{DebugFnWE}}, \code{\link{DebugPrintFn}}, \code{\link{DebugFnE}}, \code{\link{DebugPrintFnE}}
+\code{\link[utils]{dump.frames}}, \code{\link{DebugFn}}, \code{\link{DebugFnW}},  \code{\link{DebugFnWE}}, \code{\link{DebugPrintFn}}, \code{\link{DebugFnE}}, \code{\link{DebugPrintFnE}}
 }
-
