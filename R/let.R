@@ -42,15 +42,15 @@ restrictToNameAssignments <- function(alias, restrictToAllCaps=TRUE) {
   alias[usableEntries]
 }
 
-prepareAlias <- function(alias, useNames) {
+prepareAlias <- function(alias, useNames, strict) {
   # make sure alias is a list (not a named vector)
   alias <- as.list(alias)
   # confirm alias is mapping strings to strings
   if (length(unique(names(alias))) != length(names(alias))) {
-    stop('wrapr::let alias keys must be unique')
+    stop('wrapr::prepareAlias alias keys must be unique')
   }
   if ('.' %in% c(names(alias),as.character(alias))) {
-    stop("wrapr::let can not map to/from '.'")
+    stop("wrapr::prepareAlias can not map to/from '.'")
   }
   for (ni in names(alias)) {
     if (is.null(ni)) {
@@ -63,7 +63,7 @@ prepareAlias <- function(alias, useNames) {
       stop('wrapr:let alias keys must all be scalars')
     }
     if (nchar(ni) <= 0) {
-      stop('wrapr:let alias keys must be empty string')
+      stop('wrapr:let alias keys must be non-empty string')
     }
     if (!isValidAndUnreservedName(ni)) {
       stop(paste('wrapr:let alias key not a valid name: "', ni, '"'))
@@ -79,17 +79,19 @@ prepareAlias <- function(alias, useNames) {
       stop('wrapr:let alias values must all be strings or names')
     }
     if (length(vi) != 1) {
-      stop('wrapr:let alias values must all be single strings (not arrays)')
+      stop('wrapr:let alias values must all be single strings (not arrays or null)')
     }
-    if (nchar(vi) <= 0) {
-      stop('wrapr:let alias values must not be empty string')
-    }
-    if (!isValidAndUnreservedName(vi)) {
-      stop(paste('wrapr:let alias value not a valid name: "', vi, '"'))
+    if(strict) {
+      if (nchar(vi) <= 0) {
+        stop('wrapr:let alias values must not be empty string')
+      }
+      if (!isValidAndUnreservedName(vi)) {
+        stop(paste('wrapr:let alias value not a valid name: "', vi, '"'))
+      }
     }
     if(vi!=ni) {
       if(vi %in% names(alias)) {
-        stop("wrapr::let except for identity assignments keys and destinations must be disjoint")
+        stop("wrapr::prepareAlias except for identity assignments keys and destinations must be disjoint")
       }
     }
   }
@@ -107,8 +109,40 @@ prepareAlias <- function(alias, useNames) {
   alias
 }
 
-letprep <- function(alias, strexpr) {
-  alias <- prepareAlias(alias, FALSE)
+#' Substitute text.
+#'
+#' @param alias mapping named list/vector to strings/names or general
+#' @param strexpr character vector source text to be re-writtin
+#' @param strict logocal if TRUE only map to non-reserved names
+#' @return parsed R expression
+#'
+#' @examples
+#'
+#'
+#' letprep(alias= list(RankColumn= 'rank', GroupColumn= 'Species'),
+#'     strexpr= '{
+#'        # Notice code here can be written in terms of known or concrete
+#'        # names "RankColumn" and "GroupColumn", but executes as if we
+#'        # had written mapping specified columns "rank" and "Species".
+#'
+#'        # restart ranks at zero.
+#'        dres <- d
+#'        dres$RankColumn <- dres$RankColumn - 1 # notice using $ not [[]]
+#'
+#'        # confirm set of groups.
+#'        groups <- unique(d$GroupColumn)
+#'     }',
+#'     strict= TRUE)
+#'
+#'
+#' @export
+#'
+#'
+letprep <- function(alias, strexpr, strict= FALSE) {
+  alias <- prepareAlias(alias, FALSE, strict)
+  if(!is.character(strexpr)) {
+    stop("wrapr::letprep strexpr must be length 1 character array")
+  }
   # re-write the parse tree and prepare for execution
   body <- strexpr
   for (ni in names(alias)) {
@@ -152,6 +186,7 @@ letprep <- function(alias, strexpr) {
 #'
 #' @param alias mapping from free names in expr to target names to use.
 #' @param expr block to prepare for execution
+#' @param strict logical is TRUE restrict map values to non-reserved non-dot names
 #' @return result of expr executed in calling environment
 #'
 #' @examples
@@ -161,7 +196,7 @@ letprep <- function(alias, strexpr) {
 #'                 Species='setosa',
 #'                 rank=c(1,2))
 #'
-#' mapping = list(RankColumn='rank',GroupColumn='Species')
+#' mapping = list(RankColumn= 'rank', GroupColumn= 'Species')
 #' let(alias=mapping,
 #'     expr={
 #'        # Notice code here can be written in terms of known or concrete
@@ -181,13 +216,18 @@ letprep <- function(alias, strexpr) {
 #'
 #' # let works by string substitution aligning on word boundaries,
 #' # so it does (unfortunately) also re-write strings.
-#' let(list(x='y'),'x')
+#' let(list(x='y'), 'x')
+#'
+#' # let can also substitute arbitrary expressions if strict=FALSE
+#' let(list(e='1+3'), e, strict= FALSE)
 #'
 #' @export
-let <- function(alias, expr) {
+let <- function(alias, expr,
+                strict= TRUE) {
   # try to execute expression in parent environment
   # string substitution based implementation
-  exprS <- letprep(alias, deparse(substitute(expr)))
+  exprS <- letprep(alias, deparse(substitute(expr)),
+                   strict)
   eval(exprS,
        envir=parent.frame(),
        enclos=parent.frame())

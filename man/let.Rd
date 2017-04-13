@@ -4,12 +4,14 @@
 \alias{let}
 \title{Execute expr with name substitutions specified in alias.}
 \usage{
-let(alias, expr)
+let(alias, expr, strict = TRUE)
 }
 \arguments{
 \item{alias}{mapping from free names in expr to target names to use.}
 
 \item{expr}{block to prepare for execution}
+
+\item{strict}{logical is TRUE restrict map values to non-reserved non-dot names}
 }
 \value{
 result of expr executed in calling environment
@@ -46,7 +48,7 @@ d <- data.frame(Sepal_Length=c(5.8,5.7),
                 Species='setosa',
                 rank=c(1,2))
 
-mapping = list(RankColumn='rank',GroupColumn='Species')
+mapping = list(RankColumn= 'rank', GroupColumn= 'Species')
 let(alias=mapping,
     expr={
        # Notice code here can be written in terms of known or concrete
@@ -66,6 +68,9 @@ print(dres)
 
 # let works by string substitution aligning on word boundaries,
 # so it does (unfortunately) also re-write strings.
-let(list(x='y'),'x')
+let(list(x='y'), 'x')
+
+# let can also substitute arbitrary expressions if strict=FALSE
+let(list(e='1+3'), e, strict= FALSE)
 
 }

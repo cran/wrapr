@@ -1,4 +1,8 @@
 
+`wrapr` 0.1.2 2017-04-13
+ 
+ * add `ateval()`
+
 `wrapr` 0.1.1 2017-03-13
 
  * Allow names in `let`.

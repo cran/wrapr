@@ -1,8 +1,8 @@
 Package: wrapr
 Type: Package
 Title: Wrap R Functions for Debugging and Ease of Use
-Version: 0.1.1
-Date: 2017-03-13
+Version: 0.1.2
+Date: 2017-04-13
 Author: John Mount, Nina Zumel
 Maintainer: John Mount <jmount@win-vector.com>
 URL: https://github.com/WinVector/wrapr
@@ -12,11 +12,10 @@ Description: Provides 'DebugFnW()' to capture function context on error for
     standard evaluation interfaces.
     'DebugFnW()' captures the calling function and arguments prior to the 
     call causing the exception, while 
-    the classic `options(error=dump.frames)` form captures at the
+    the classic 'options(error=dump.frames)' form captures at the
     moment of the exception
     itself (thus function arguments may not be at their starting values).
-    `let()` rebinds (possibly unbound) names to names, which is different than
-    `with()` rebinds names to values.
+    'let()' rebinds (possibly unbound) names to names.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -24,6 +23,6 @@ RoxygenNote: 6.0.1
 Suggests: testthat, knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2017-03-14 04:13:07 UTC; johnmount
+Packaged: 2017-04-13 22:33:53 UTC; johnmount
 Repository: CRAN
-Date/Publication: 2017-03-14 06:58:38
+Date/Publication: 2017-04-13 22:54:41 UTC
