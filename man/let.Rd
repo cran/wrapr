@@ -4,14 +4,18 @@
 \alias{let}
 \title{Execute expr with name substitutions specified in alias.}
 \usage{
-let(alias, expr, strict = TRUE)
+let(alias, expr, ..., subsMethod = "stringsubs", debugPrint = FALSE)
 }
 \arguments{
 \item{alias}{mapping from free names in expr to target names to use.}
 
-\item{expr}{block to prepare for execution}
+\item{expr}{block to prepare for execution.}
 
-\item{strict}{logical is TRUE restrict map values to non-reserved non-dot names}
+\item{...}{force later arguments to be bound by name.}
+
+\item{subsMethod}{character, one of  c('stringsubs', 'langsubs')}
+
+\item{debugPrint}{logical if TRUE print debugging information when in stringsubs mode.}
 }
 \value{
 result of expr executed in calling environment
@@ -21,7 +25,6 @@ result of expr executed in calling environment
 Mnemonic: "expr code symbols are on the left, external data and function argument names are on the right."
 }
 \details{
-Inspired by \code{gtools::strmacro} by Gregory R. Warnes.
 Please see the \code{wrapr} \code{vignette} for some discussion of let and crossing function call boundaries: \code{vignette('wrapr','wrapr')}.
 Transformation is performed by substitution on the expression parse tree, so be wary of name collisions or aliasing.
 
@@ -40,6 +43,10 @@ The intent from is from the user perspective to have (if
 \code{a <- 1; b <- 2}):
 \code{let(c(z = 'a'), z+b)} to behave a lot like
 \code{eval(substitute(z+b, c(z=quote(a))))}.
+
+\code{let} deliberately checks that it is mapping only to legal \code{R} names;
+this is to discourage the use of \code{let} to make names to arbitrary values, as
+that is the more properly left to \code{R}'s enviroment systems.
 }
 \examples{
 
@@ -48,29 +55,31 @@ d <- data.frame(Sepal_Length=c(5.8,5.7),
                 Species='setosa',
                 rank=c(1,2))
 
-mapping = list(RankColumn= 'rank', GroupColumn= 'Species')
+RANKCOLUMN <- NULL # optional, make sure marco target does not look like unbound variable.
+GROUPCOLUMN <- NULL # optional, make sure marco target does not look like unbound variable.
+mapping = list(RANKCOLUMN= 'rank', GROUPCOLUMN= 'Species')
 let(alias=mapping,
     expr={
        # Notice code here can be written in terms of known or concrete
-       # names "RankColumn" and "GroupColumn", but executes as if we
+       # names "RANKCOLUMN" and "GROUPCOLUMN", but executes as if we
        # had written mapping specified columns "rank" and "Species".
 
        # restart ranks at zero.
        dres <- d
-       dres$RankColumn <- dres$RankColumn - 1 # notice using $ not [[]]
+       dres$RANKCOLUMN <- dres$RANKCOLUMN - 1 # notice using $ not [[]]
 
        # confirm set of groups.
-       groups <- unique(d$GroupColumn)
+       groups <- unique(d$GROUPCOLUMN)
     })
 print(groups)
 print(length(groups))
 print(dres)
 
-# let works by string substitution aligning on word boundaries,
-# so it does (unfortunately) also re-write strings.
-let(list(x='y'), 'x')
+# In string substitution mode let can replace string contents:
+let(list(x='y'), 'x', subsMethod= 'stringsubs')
 
-# let can also substitute arbitrary expressions if strict=FALSE
-let(list(e='1+3'), e, strict= FALSE)
+# In langsubs mode it will not:
+let(list(x='y'), 'x', subsMethod= 'langsubs')
+
 
 }
