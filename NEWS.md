@@ -1,4 +1,9 @@
 
+`wrapr` 0.2.0 2017-07-05
+
+ * Switch to abstract syntax tree substitution.
+ * Allow variable swaps.
+
 `wrapr` 0.1.3 2017-06-13
 
  * More flexible treatment of `NULL`.
@@ -14,4 +19,4 @@
 
 `wrapr` 0.1.0 2017-02-10
  
- * First version
+ * First version (some fns, from replyr package).

@@ -2,9 +2,9 @@
 % Please edit documentation in R/let.R
 \name{letprep_str}
 \alias{letprep_str}
-\title{Substitute text.}
+\title{Substitute text (note text can be a vector).}
 \usage{
-letprep_str(alias, strexpr, ..., debugPrint = FALSE)
+letprep_str(alias, strexpr, ...)
 }
 \arguments{
 \item{alias}{mapping named list/vector to strings/names or general}
@@ -12,12 +12,10 @@ letprep_str(alias, strexpr, ..., debugPrint = FALSE)
 \item{strexpr}{character vector source text to be re-written}
 
 \item{...}{force later arguments to be bound by name.}
-
-\item{debugPrint}{logical if TRUE print debugging information}
 }
 \value{
 parsed R expression with substitutions
 }
 \description{
-Substitute text.
+Substitute text (note text can be a vector).
 }

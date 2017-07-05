@@ -4,7 +4,8 @@
 \alias{let}
 \title{Execute expr with name substitutions specified in alias.}
 \usage{
-let(alias, expr, ..., subsMethod = "stringsubs", debugPrint = FALSE)
+let(alias, expr, ..., subsMethod = "langsubs", eval = TRUE,
+  debugPrint = FALSE)
 }
 \arguments{
 \item{alias}{mapping from free names in expr to target names to use.}
@@ -13,12 +14,14 @@ let(alias, expr, ..., subsMethod = "stringsubs", debugPrint = FALSE)
 
 \item{...}{force later arguments to be bound by name.}
 
-\item{subsMethod}{character, one of  c('stringsubs', 'langsubs')}
+\item{subsMethod}{character substitution method, one of  c('langsubs', 'stringsubs', 'subsubs').}
+
+\item{eval}{logical if TRUE execute the re-mapped expression (else return it).}
 
 \item{debugPrint}{logical if TRUE print debugging information when in stringsubs mode.}
 }
 \value{
-result of expr executed in calling environment
+result of expr executed in calling environment (or expression if eval==FALSE).
 }
 \description{
 \code{let} implements a mapping from desired names (names used directly in the expr code) to names used in the data.
@@ -26,7 +29,7 @@ Mnemonic: "expr code symbols are on the left, external data and function argumen
 }
 \details{
 Please see the \code{wrapr} \code{vignette} for some discussion of let and crossing function call boundaries: \code{vignette('wrapr','wrapr')}.
-Transformation is performed by substitution on the expression parse tree, so be wary of name collisions or aliasing.
+Transformation is performed by substitution, so please be wary of name collisions or aliasing.
 
 Something like \code{let} is only useful to get control of a function that is parameterized
 (in the sense it take column names) but non-standard (in that it takes column names from
@@ -37,7 +40,7 @@ and not useful for functions take parameters in straightforward way (such as \co
 we can use a \code{let} helper.   \code{dplyr::mutate} is
 parameterized (in the sense it can work over user supplied columns and expressions), but column names are captured through non-standard evaluation
 (and it rapidly becomes unwieldy to use complex formulas with the standard evaluation equivalent \code{dplyr::mutate_}).
-\code{alias} can not include the symbol "\code{.}". Except for identity assignments keys and destinations must be disjoint.
+\code{alias} can not include the symbol "\code{.}".
 
 The intent from is from the user perspective to have (if
 \code{a <- 1; b <- 2}):
@@ -46,7 +49,12 @@ The intent from is from the user perspective to have (if
 
 \code{let} deliberately checks that it is mapping only to legal \code{R} names;
 this is to discourage the use of \code{let} to make names to arbitrary values, as
-that is the more properly left to \code{R}'s enviroment systems.
+that is the more properly left to \code{R}'s environment systems.
+\code{let} is intended to transform
+"tame" variable and column names to "tame" variable and column names.  Substitution
+outcomes that are not valid simple \code{R} variable names (produced with out use of
+back-ticks) are forbidden.  It is suggested that substitution targets be written
+\code{ALL_CAPS} style to make them stand out.
 }
 \examples{
 
@@ -55,31 +63,27 @@ d <- data.frame(Sepal_Length=c(5.8,5.7),
                 Species='setosa',
                 rank=c(1,2))
 
-RANKCOLUMN <- NULL # optional, make sure marco target does not look like unbound variable.
-GROUPCOLUMN <- NULL # optional, make sure marco target does not look like unbound variable.
-mapping = list(RANKCOLUMN= 'rank', GROUPCOLUMN= 'Species')
-let(alias=mapping,
-    expr={
+RANKCOLUMN <- NULL # optional, make sure macro target does not look like unbound variable.
+GROUPCOLUMN <- NULL # optional, make sure macro target does not look like unbound variable.
+mapping = c(RANKCOLUMN= 'rank', GROUPCOLUMN= 'Species')
+let(alias = mapping,
+    expr = {
        # Notice code here can be written in terms of known or concrete
        # names "RANKCOLUMN" and "GROUPCOLUMN", but executes as if we
        # had written mapping specified columns "rank" and "Species".
 
        # restart ranks at zero.
        dres <- d
-       dres$RANKCOLUMN <- dres$RANKCOLUMN - 1 # notice using $ not [[]]
+       dres$RANKCOLUMN <- dres$RANKCOLUMN - 1 # notice, using $ not [[]]
 
        # confirm set of groups.
        groups <- unique(d$GROUPCOLUMN)
-    })
+    },
+    debugPrint = TRUE
+    )
 print(groups)
 print(length(groups))
 print(dres)
-
-# In string substitution mode let can replace string contents:
-let(list(x='y'), 'x', subsMethod= 'stringsubs')
-
-# In langsubs mode it will not:
-let(list(x='y'), 'x', subsMethod= 'langsubs')
 
 
 }
