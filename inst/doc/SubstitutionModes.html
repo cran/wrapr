@@ -12,7 +12,7 @@
 
 <meta name="author" content="John Mount" />
 
-<meta name="date" content="2017-07-05" />
+<meta name="date" content="2017-07-22" />
 
 <title>Substitution Modes</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Substitution Modes</h1>
 <h4 class="author"><em>John Mount</em></h4>
-<h4 class="date"><em>2017-07-05</em></h4>
+<h4 class="date"><em>2017-07-22</em></h4>
 
 
 
@@ -80,7 +80,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <ul>
 <li>Language substitution (<code>subsMethod='langsubs'</code> the new default). In this mode user code is captured as an abstract syntax tree (or parse tree) and substitution is performed only on nodes known to be symbols or behaving in a symbol-role (<code>&quot;X&quot;</code> in <code>d$&quot;X&quot;</code> is one such example).</li>
 <li>String substitution (<code>subsMethod='stringsubs'</code>, the previous default). In this mode user code is captured as text and then string replacement on word-boundaries is used to substitute in variable re-mappings.</li>
-<li>Substitute substitution (<code>subsMethod='subsubs'</code>, new to the development version). In this mode substitution is performed by <code>R</code>’s own <code>base::substitute()</code>.</li>
+<li>Substitute substitution (<code>subsMethod='subsubs'</code>). In this mode substitution is performed by <code>R</code>’s own <code>base::substitute()</code>.</li>
 </ul>
 <p>The semantics of the three methods can be illustrated by showing the effects of substituting the variable name “<code>y</code>” for “<code>X</code>” and the function “<code>sin</code>” for “<code>F</code>” in the somewhat complicated block of statements:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  {
@@ -134,7 +134,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 ##     d &lt;- data.frame(X = &quot;X&quot;, X2 = &quot;XX&quot;, d = y * y, .X = X_)
 ##     y &lt;- list(X = d$y, X2 = d$X, v1 = y, v2 = ` X`, sin(1:2))
 ## }</code></pre>
-<p>Notice <code>base::substitute()</code> doesn’t re-write left-hand-sides of argument bindings. This is why I originally didn’t consider using this implementation. Re-writing left-hand-sides of assignments is critical in expressions such as <code>dplyr::mutate( RESULTCOL = INPUTCOL + 1)</code>. Also <code>base::substitute()</code> doesn’t special case the <code>d$&quot;X&quot;</code> situation (which really isn’t that important).</p>
+<p>Notice <code>base::substitute()</code> doesn’t re-write left-hand-sides of argument bindings. This is why I originally didn’t consider using this implementation. Re-writing left-hand-sides of assignments is critical in expressions such as <code>dplyr::mutate( RESULTCOL = INPUTCOL + 1)</code>. Also <code>base::substitute()</code> doesn’t special case the <code>d$&quot;X&quot;</code> situation (but that really isn’t very important).</p>
 </div>
 </div>
 <div id="conclusion" class="section level2">

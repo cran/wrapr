@@ -13,6 +13,7 @@ Introduction
 Primary `wrapr` services include:
 
 -   `wrapr::let()`
+-   `wrapr::%.>%` (dot arrow pipe)
 -   `wrapr::DebugFnW()`
 
 `wrapr::let()`
@@ -64,7 +65,30 @@ let(
  #  [1] 14
 ```
 
-Please see `vignette('let', package='wrapr')` for more examples.
+Please see `vignette('let', package='wrapr')` for more examples. For working with `dplyr` 0.7.\* we also suggest taking a look at an alternate approach called [`seplyr`](https://github.com/WinVector/seplyr/blob/master/README.md).
+
+`wrapr::%.>%` (dot arrow pipe)
+------------------------------
+
+`wrapr::%.>%` dot arrow pipe is a strict pipe with intended semantics:
+
+> "`a %.>% b`" is to be treated as if the user had written "`{ . &lt;- a; b };`" with "`%.>%`" being treated as left-associative, and `.`-side effects removed.
+
+That is: `%.>%` does not alter any function arguments that are not explicitly named. It is not defined as `a %.% b ~ b(a)` (roughly `dplyr`'s original pipe) or as the large set of differing cases constituting `magrittr::%>%`. `wrapr::%.>%` is designed to be explicit and simple.
+
+The effect looks is show below.
+
+The following two expressions should be equivalent:
+
+``` r
+cos(exp(sin(4)))
+ #  [1] 0.8919465
+
+4 %.>% sin(.) %.>% exp(.) %.>% cos(.)
+ #  [1] 0.8919465
+```
+
+Please see ["In Praise of Syntactic Sugar"](http://www.win-vector.com/blog/2017/07/in-praise-of-syntactic-sugar/) for more details.
 
 `wrapr::DebugFnW()`
 -------------------
