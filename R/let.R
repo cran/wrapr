@@ -59,12 +59,6 @@ prepareAlias <- function(alias, strict) {
     stop('wrapr::prepareAlias alias keys must be unique')
   }
   if(strict) {
-    # confirm alias is an invertable mapping strings to strings
-    if (length(unique(as.character(alias))) != length(alias)) {
-      stop('wrapr::prepareAlias alias values must be unique')
-    }
-  }
-  if(strict) {
     if ('.' %in% c(names(alias),as.character(alias))) {
       stop("wrapr::prepareAlias can not map to/from '.'")
     }
@@ -72,6 +66,9 @@ prepareAlias <- function(alias, strict) {
   for (ni in names(alias)) {
     if (is.null(ni)) {
       stop('wrapr:let alias keys must not be null')
+    }
+    if (is.na(ni)) {
+      stop('wrapr:let alias keys must not be NA')
     }
     if (!is.character(ni)) {
       stop('wrapr:let alias keys must all be strings')
@@ -86,6 +83,9 @@ prepareAlias <- function(alias, strict) {
       stop(paste('wrapr:let alias key not a valid name: "', ni, '"'))
     }
     vi <- alias[[ni]]
+    if (is.na(vi)) {
+      stop('wrapr:let alias values must not be NA')
+    }
     if (is.null(vi)) {
       stop('wrapr:let alias values must not be null')
     }
@@ -171,6 +171,10 @@ letprep_str <- function(alias, strexpr,
 letprep_lang <- function(alias, lexpr) {
   nexpr <- lexpr
   n <- length(nexpr)
+  # just in case (establishes an invarient of n>=1)
+  if(n<=0) {
+    return(nexpr)
+  }
   # left-hand sides of lists/calls are represented as keys
   nms <- names(nexpr)
   if(length(nms)>0) {
@@ -184,30 +188,6 @@ letprep_lang <- function(alias, lexpr) {
       }
     }
     names(nexpr) <- nms
-  }
-  # try some easy cases first
-  if(is.character(nexpr)) {
-    return(nexpr)
-  }
-  # this is the main re-mapper
-  if(is.symbol(nexpr)) { # same as is.name()
-    # symbol is not subsettable, so length==1
-    #  as.name('x')[[1]]
-    #  # Error in as.name("x")[[1]] : object of type 'symbol' is not subsettable
-    # and can't have names
-    #   names(as.name("x")) <- 'a'
-    #   ## Error in names(as.name("x")) <- "a" :
-    #   ## target of assignment expands to non-language object
-    ki <- as.character(nexpr)
-    ri <- alias[[ki]]
-    if((length(ri)>0)&&(ri!=ki)) {
-      return(as.name(ri))
-    }
-    return(nexpr)
-  }
-  # just in case (establishes an invarient of n>=1)
-  if(n<=0) {
-    return(nexpr)
   }
   # special cases
   if(is.call(nexpr)) {
@@ -230,27 +210,34 @@ letprep_lang <- function(alias, lexpr) {
       }
     }
   }
-  if(is.expression(nexpr) || is.call(nexpr)) {
-    # from help(is.expression):
-    #   "As an object of mode "expression" is a list"
-    # as x[[1]] isn't x for lists  (which is not true for vectors as 1[[1]]  is 1)
-    # we know we can try to recurse without an obvious infinite loop
-    for(i in seq_len(n)) {
-      nexpr[[i]] <- letprep_lang(alias, nexpr[[i]])
-    }
-    return(nexpr)
-  }
-  # should be done as is.language() is supposed to imply one of:
-  #   is.name(), is.call(), or is.expr()
-  # the recurse, assuming language objects are list-like in that
-  #  x[[1]] isn't x (which is not true for vectors as 1[[1]]  is 1).
-  # was recursing on is.language(), now do it on n>1
+  # basic recurse, establish invariant n==1
   if(n>1) {
     for(i in seq_len(n)) {
       nexpr[[i]] <- letprep_lang(alias, nexpr[[i]])
     }
     return(nexpr)
   }
+  # don't re-map quoted strings (except above)
+  if(is.character(nexpr)) {
+    return(nexpr)
+  }
+  # this is the main re-mapper
+  if(is.symbol(nexpr)) { # same as is.name()
+    # symbol is not subsettable, so length==1
+    #  as.name('x')[[1]]
+    #  # Error in as.name("x")[[1]] : object of type 'symbol' is not subsettable
+    # and can't have names
+    #   names(as.name("x")) <- 'a'
+    #   ## Error in names(as.name("x")) <- "a" :
+    #   ## target of assignment expands to non-language object
+    ki <- as.character(nexpr)
+    ri <- alias[[ki]]
+    if((length(ri)>0)&&(ri!=ki)) {
+      return(as.name(ri))
+    }
+    return(nexpr)
+  }
+  # fall-back
   return(nexpr)
 }
 
@@ -295,7 +282,7 @@ letprep_lang <- function(alias, lexpr) {
 #' @param expr block to prepare for execution.
 #' @param ... force later arguments to be bound by name.
 #' @param subsMethod character substitution method, one of  c('langsubs', 'stringsubs', 'subsubs').
-#' @param strict logical if TRUE names and values must be valid un-quoted names, not dot, and unique values.
+#' @param strict logical if TRUE names and values must be valid un-quoted names, and not dot.
 #' @param eval logical if TRUE execute the re-mapped expression (else return it).
 #' @param debugPrint logical if TRUE print debugging information when in stringsubs mode.
 #' @return result of expr executed in calling environment (or expression if eval==FALSE).
