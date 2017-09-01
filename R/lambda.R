@@ -66,18 +66,33 @@ makeFunction_se <- function(params, body, env = parent.frame()) {
 #' @export
 #'
 lambda <- function(..., env = parent.frame()) {
-  args <- substitute(list(...))
+  args <- base::substitute(list(...))
   body <- args[[length(args)]]
   args <- args[-length(args)]
-  params <- lapply(args[-1], as.name)
-  makeFunction_se(params, body, env)
+  params <- base::lapply(args[-1], base::as.name)
+  wrapr::makeFunction_se(params, body, env)
 }
 
+
+
+#' Define lambda function building function.
+#'
+#' Use this to place a copy of the lambda-symbol
+#' function builder in your workspace.
+#'
+#' @param envir environment to work in.
+#' @param name character, name to assign to (defaults to Greek lambda).
+#'
+#' @examples
+#'
+#' defineLambda()
+#' # ls()
+#'
 #' @export
-`:=.formula` <- function(args, values) {
-  env = parent.frame()
-  params <- setdiff(as.character(all.vars(substitute(args))),
-                    '~')
-  body <- substitute(values)
-  makeFunction_se(params, body, env)
+#'
+defineLambda <- function(envir = parent.frame(), name = NULL) {
+  if(is.null(name)) {
+    name <- intToUtf8(0x03BB)
+  }
+  assign(name, wrapr::lambda, envir = envir)
 }

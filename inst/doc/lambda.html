@@ -14,7 +14,7 @@
 
 <meta name="date" content="2017-08-31" />
 
-<title>Named Map Builder</title>
+<title>lambda Function Builder</title>
 
 
 
@@ -68,33 +68,36 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">Named Map Builder</h1>
+<h1 class="title toc-ignore">lambda Function Builder</h1>
 <h4 class="author"><em>John Mount</em></h4>
 <h4 class="date"><em>2017-08-31</em></h4>
 
 
 
-<p>“named map builder” is an operator written as “<code>:=</code>”. Named map builder is a <em>very</em> simple bit of code that performs a very simple task: it adds names to vectors or lists (making them work more like maps).</p>
-<p>Here are some examples:</p>
+<p>The <a href="https://cran.r-project.org"><code>CRAN</code></a> version of the <a href="https://www.r-project.org"><code>R</code></a> package <a href="https://CRAN.R-project.org/package=wrapr"><code>wrapr</code></a> package now includes a concise anonymous function constructor: <code>l()</code>.</p>
+<p>To use it please do the following: attach <code>wrapr</code> and ask it to place a definition for <code>l()</code> in your environment:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;wrapr&quot;</span>)
-
-<span class="st">'a'</span> :<span class="er">=</span><span class="st"> </span><span class="dv">5</span></code></pre></div>
-<pre><code>## a 
-## 5</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">c</span>(<span class="st">'a'</span> :<span class="er">=</span><span class="st"> </span><span class="dv">5</span>, <span class="st">'b'</span> :<span class="er">=</span><span class="st"> </span><span class="dv">6</span>)</code></pre></div>
-<pre><code>## a b 
-## 5 6</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">c</span>(<span class="st">'a'</span>, <span class="st">'b'</span>) :<span class="er">=</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">6</span>)</code></pre></div>
-<pre><code>## a b 
-## 5 6</code></pre>
-<p>The left-side argument of the <code>:=</code> operator is called “the names”, and the right-side argument is called “the values”. The <code>:=</code> operators returns the values with the names set to names.</p>
-<p>A key use of the named map builder is the following:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">key =<span class="st"> 'keycode'</span>
-key :<span class="er">=</span><span class="st"> 'value'</span></code></pre></div>
-<pre><code>## keycode 
-## &quot;value&quot;</code></pre>
-<p>Notice the value inside the variable <code>key</code> was used as the array name, this differs from what is easily done with <code>R</code>’s native <code>c(key = 'value')</code> style notation.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">help</span>(<span class="st">`</span><span class="dt">:=</span><span class="st">`</span>, <span class="dt">package =</span> <span class="st">'wrapr'</span>)</code></pre></div>
+wrapr::<span class="kw">defineLambda</span>(<span class="dt">name =</span> <span class="st">&quot;l&quot;</span>)
+<span class="kw">ls</span>()</code></pre></div>
+<pre><code>## [1] &quot;X&quot;      &quot;Y&quot;      &quot;df&quot;     &quot;f&quot;      &quot;inputs&quot; &quot;l&quot;      &quot;x&quot;</code></pre>
+<p>Note: throughout this document we are using the letter “<code>l</code>” as a stand-in for the Greek letter lambda, as this non-ASCII character can cause formatting problems in some situations.</p>
+<p>You can use <code>l()</code> to define functions. The syntax is: <code>l(arg [, arg]*, body [, env=env])</code>. That is we write a <code>l()</code>-call (which you can do by cutting and pasting) and list the desired function arguments and then the function body. For example the function that squares numbers is:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">l</span>(x, x^<span class="dv">2</span>)</code></pre></div>
+<pre><code>## function (x) 
+## x^2</code></pre>
+<p>We can use such a function to square the first four positive integers as follows:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sapply</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="kw">l</span>(x, x^<span class="dv">2</span>))</code></pre></div>
+<pre><code>## [1]  1  4  9 16</code></pre>
+<p>Dot-pipe style notation does not need the <code>l()</code> factory as it treats pipe stages as expressions parameterized over the variable “<code>.</code>”:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="dv">1</span>:<span class="dv">4</span> %.&gt;%<span class="st"> </span>{ .^<span class="dv">2</span> }</code></pre></div>
+<pre><code>## [1]  1  4  9 16</code></pre>
+<p>If you do want an operator notation for function construction you can also use on of the variations of the named map builder:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(<span class="dv">1</span>:<span class="dv">4</span>) %.&gt;%<span class="st"> </span>(x :<span class="er">=</span><span class="st"> </span>{ x^<span class="dv">2</span> })(.)</code></pre></div>
+<pre><code>## [1]  1  4  9 16</code></pre>
+<p>And we can build functions that take more than one argument as follows:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">l</span>(x, y, x +<span class="st"> </span><span class="dv">3</span>*y)</code></pre></div>
+<pre><code>## function (x, y) 
+## x + 3 * y</code></pre>
 
 
 
