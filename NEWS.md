@@ -1,4 +1,8 @@
 
+# wrapr 1.0.0 2017-10-04
+
+ * Add mapsyms() function.
+ 
 # wrapr 0.4.2 2017-08-31
 
  * Work on location of lambda-definition (do NOT write into environment until asked).
