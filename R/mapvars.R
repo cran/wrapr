@@ -2,7 +2,7 @@
 #' Map symbol names to referenced values if those values are string scalars (else throw).
 #'
 #' @param ... symbol names mapping to string scalars
-#' @return map from original symbol names to new names
+#' @return map from original symbol names to new names (names found in the current environment)
 #'
 #' @examples
 #'
@@ -16,8 +16,15 @@
 #'
 mapsyms <- function(...) {
   mapsyms_envir = parent.frame()
-  mapsyms_names <- vapply(substitute(list(...))[-1],
-                          as.character,
+  mapsyms_args <- as.list(substitute(list(...))[-1])
+  mapsyms_names <- vapply(mapsyms_args,
+                          function(ai) {
+                            ai <- as.character(ai)
+                            if(length(ai)!=1) {
+                              stop("wrapr::mapsyms all arguments must be coercible into length-1 strings")
+                            }
+                            ai
+                          },
                           character(1))
   mapsyms_dests <- lapply(mapsyms_names,
                           function(ni) { get(ni, envir=mapsyms_envir)})
