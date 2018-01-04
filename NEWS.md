@@ -1,4 +1,12 @@
 
+# wrapr 1.1.0 2018-01-03
+
+ * minor doc improvements.
+ * fix deparse in qae() and qe().
+ * Deprecate ateval(), seval(), beval(), and "stringsubs".
+ * add qs().
+ * add dereference and class-supplied function to pipes.
+
 # wrapr 1.0.2 2017-12-13
 
  * add "to dot" pipe.

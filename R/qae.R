@@ -8,6 +8,8 @@
 #' @param ... assignment expressions.
 #' @return array of quoted assignment expressions.
 #'
+#' @seealso \code{\link{qc}}, \code{\link{qae}}
+#'
 #' @examples
 #'
 #' exprs <- qe(Sepal.Length >= ratio * Sepal.Width,
@@ -29,7 +31,7 @@ qe <- function(...) {
   rhs <- vector(len-1, mode='list')
   for(i in (2:len)) {
     ei <- mutateTerms[[i]]
-    rhs[[i-1]] <- as.character(deparse(ei))
+    rhs[[i-1]] <- paste(as.character(deparse(ei)), collapse = "\n")
   }
   rhs
 }
@@ -44,6 +46,8 @@ qe <- function(...) {
 #'
 #' @param ... assignment expressions.
 #' @return array of quoted assignment expressions.
+#'
+#' @seealso \code{\link{qc}}, \code{\link{qe}}
 #'
 #' @examples
 #'
@@ -77,8 +81,23 @@ qae <- function(...) {
       stop("wrapr::qae() terms must be of the form: sym := expr")
     }
     lhs[[i-1]] <- as.character(ei[[2]])
-    rhs[[i-1]] <- as.character(deparse(ei[[3]]))
+    rhs[[i-1]] <- paste(as.character(deparse(ei[[3]])), collapse = "\n")
   }
   lhs := rhs
 }
 
+
+#' Quote a string.
+#'
+#' @param s expression to be quoted as a string.
+#' @return character
+#'
+#' @examples
+#'
+#' qs(a == "x")
+#'
+#' @export
+#'
+qs <- function(s) {
+  as.character(paste(deparse(substitute(s)), collapse = '\n'))
+}

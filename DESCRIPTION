@@ -1,8 +1,8 @@
 Package: wrapr
 Type: Package
 Title: Wrap R Functions for Debugging and Parametric Programming
-Version: 1.0.2
-Date: 2017-12-13
+Version: 1.1.0
+Date: 2018-01-03
 Authors@R: c(
     person("John", "Mount", email = "jmount@win-vector.com", role = c("aut", "cre")),
     person("Nina", "Zumel", email = "nzumel@win-vector.com", role = c("aut")),
@@ -23,9 +23,9 @@ Suggests: testthat, knitr, rmarkdown
 VignetteBuilder: knitr
 ByteCompile: true
 NeedsCompilation: no
-Packaged: 2017-12-13 18:19:01 UTC; johnmount
+Packaged: 2018-01-03 23:14:58 UTC; johnmount
 Author: John Mount [aut, cre],
   Nina Zumel [aut],
   Win-Vector LLC [cph]
 Repository: CRAN
-Date/Publication: 2017-12-14 16:52:54 UTC
+Date/Publication: 2018-01-04 16:50:02 UTC
