@@ -1,4 +1,9 @@
 
+# wrapr 1.1.1 2018-01-20
+ 
+ * Fix some null/blank substitution issues.
+ * Minor documentation improvements.
+ 
 # wrapr 1.1.0 2018-01-03
 
  * minor doc improvements.
