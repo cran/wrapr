@@ -114,16 +114,11 @@ prepareAlias <- function(alias, strict) {
 #'
 #' @param alias mapping named list/vector to strings/names or general
 #' @param strexpr character vector source text to be re-written
-#' @param ... force later arguments to be bound by name.
 #' @return parsed R expression with substitutions
 #'
 #' @noRd
 #'
-letprep_str <- function(alias, strexpr,
-                    ...) {
-  if(length(list(...))>0) {
-    stop("wrapr::letprep_str unexpected arguments.")
-  }
+letprep_str <- function(alias, strexpr) {
   if(!is.character(strexpr)) {
     stop("wrapr::letprep_str strexpr must be a character array")
   }
@@ -163,7 +158,6 @@ letprep_str <- function(alias, strexpr,
 #'
 #' @param alias mapping named list/vector to strings/names or general
 #' @param lexpr language item
-#' @param ... force later arguments to be bound by name.
 #' @return R language element with substitutions
 #'
 #' @noRd
@@ -291,7 +285,7 @@ letprep_lang <- function(alias, lexpr) {
 #' @param expr block to prepare for execution.
 #' @param ... force later arguments to be bound by name.
 #' @param envir environment to work in.
-#' @param subsMethod character substitution method, one of  'langsubs' (preferred), 'subsubs', or 'stringsubs' (deprecated).
+#' @param subsMethod character substitution method, one of  'langsubs' (preferred), 'subsubs', or 'stringsubs'.
 #' @param strict logical if TRUE names and values must be valid un-quoted names, and not dot.
 #' @param eval logical if TRUE execute the re-mapped expression (else return it).
 #' @param debugPrint logical if TRUE print debugging information when in stringsubs mode.
@@ -336,9 +330,7 @@ let <- function(alias, expr,
                 eval= TRUE,
                 debugPrint= FALSE) {
   exprQ <- substitute(expr)  # do this early before things enter local environment
-  if(length(list(...))>0) {
-    stop("wrapr::let unexpected arguments")
-  }
+  stop_if_dot_args(substitute(list(...)), "wrapr::let")
   allowedMethods <- c('langsubs', 'stringsubs', 'subsubs')
   if((!is.character(subsMethod)) ||
      (length(subsMethod)!=1) ||
@@ -360,7 +352,6 @@ let <- function(alias, expr,
     } else if(subsMethod=='stringsubs') {
       # string substitution based implementation.
       # Similar to \code{gtools::strmacro} by Gregory R. Warnes.
-      # warning("subsMethod='stringsubs' is deprecated")
       exprS <- letprep_str(alias, deparse(exprQ))
     } else {
       stop(paste("wrapr::let unexpected subsMethod '", subsMethod, "'"))

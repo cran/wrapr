@@ -1,4 +1,16 @@
 
+# wrapr 1.2.0 2018-02-21
+ 
+ * Add map_upper.
+ * Accept x=y in qae().
+ * Strengthen :=.
+ * Add left S3 dispatch through pipe_step.
+ * Add right S3 dispatch through wrapr_function.
+ * Add match_order.
+ * Remove deprecated methods.
+ * Move mk_tmp_name_source to this package.
+ * Add stop_if_dot_args.
+
 # wrapr 1.1.1 2018-01-20
  
  * Fix some null/blank substitution issues.
