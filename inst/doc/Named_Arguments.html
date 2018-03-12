@@ -10,11 +10,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta name="author" content="John Mount" />
+<meta name="author" content="John Mount, Win-Vector LLC" />
 
 <meta name="date" content="2018-03-12" />
 
-<title>lambda Function Builder</title>
+<title>Named Arguments</title>
 
 
 
@@ -68,37 +68,51 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">lambda Function Builder</h1>
-<h4 class="author"><em>John Mount</em></h4>
+<h1 class="title toc-ignore">Named Arguments</h1>
+<h4 class="author"><em>John Mount, Win-Vector LLC</em></h4>
 <h4 class="date"><em>2018-03-12</em></h4>
 
 
 
-<p>The <a href="https://cran.r-project.org"><code>CRAN</code></a> version of the <a href="https://www.r-project.org"><code>R</code></a> package <a href="https://CRAN.R-project.org/package=wrapr"><code>wrapr</code></a> package now includes a concise anonymous function constructor: <code>l()</code>.</p>
-<p>To use it please do the following: attach <code>wrapr</code> and ask it to place a definition for <code>l()</code> in your environment:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;wrapr&quot;</span>)
-wrapr<span class="op">::</span><span class="kw">defineLambda</span>(<span class="dt">name =</span> <span class="st">&quot;l&quot;</span>)
-<span class="kw">ls</span>()</code></pre></div>
-<pre><code>## [1] &quot;X&quot;      &quot;Y&quot;      &quot;d&quot;      &quot;d2&quot;     &quot;df&quot;     &quot;f&quot;      &quot;inputs&quot; &quot;l&quot;     
-## [9] &quot;x&quot;</code></pre>
-<p>Note: throughout this document we are using the letter “<code>l</code>” as a stand-in for the Greek letter lambda, as this non-ASCII character can cause formatting problems in some situations.</p>
-<p>You can use <code>l()</code> to define functions. The syntax is: <code>l(arg [, arg]*, body [, env=env])</code>. That is we write a <code>l()</code>-call (which you can do by cutting and pasting) and list the desired function arguments and then the function body. For example the function that squares numbers is:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">l</span>(x, x<span class="op">^</span><span class="dv">2</span>)</code></pre></div>
-<pre><code>## function (x) 
-## x^2</code></pre>
-<p>We can use such a function to square the first four positive integers as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="kw">l</span>(x, x<span class="op">^</span><span class="dv">2</span>))</code></pre></div>
-<pre><code>## [1]  1  4  9 16</code></pre>
-<p>Dot-pipe style notation does not need the <code>l()</code> factory as it treats pipe stages as expressions parameterized over the variable “<code>.</code>”:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="dv">1</span><span class="op">:</span><span class="dv">4</span> <span class="op">%.&gt;%</span><span class="st"> </span>{ .<span class="op">^</span><span class="dv">2</span> }</code></pre></div>
-<pre><code>## [1]  1  4  9 16</code></pre>
-<p>If you do want an operator notation for function construction you can also use on of the variations of the named map builder:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>) <span class="op">%.&gt;%</span><span class="st"> </span>(x <span class="op">:</span><span class="er">=</span><span class="st"> </span>{ x<span class="op">^</span><span class="dv">2</span> })(.)</code></pre></div>
-<pre><code>## [1]  1  4  9 16</code></pre>
-<p>And we can build functions that take more than one argument as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">l</span>(x, y, x <span class="op">+</span><span class="st"> </span><span class="dv">3</span><span class="op">*</span>y)</code></pre></div>
-<pre><code>## function (x, y) 
-## x + 3 * y</code></pre>
+<p>R’s named function argument binding is a great aid in writing correct programs. It is a good idea, if practical, to force optional arguments to only be usable by name. To do this declare the additional arguments after “<code>…</code>” and enforce that none got lost in the “<code>…</code> trap” by using a checker such as <a href="https://winvector.github.io/wrapr/reference/stop_if_dot_args.html">wrapr::stop_if_dot_args()</a>.</p>
+<p>Example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' Increment x by inc.</span>
+<span class="co">#' </span>
+<span class="co">#' @param x item to add to</span>
+<span class="co">#' @param ... not used for values, forces later arguments to bind by name</span>
+<span class="co">#' @param inc (optional) value to add</span>
+<span class="co">#' @return x+inc</span>
+<span class="co">#'</span>
+<span class="co">#' @examples</span>
+<span class="co">#'</span>
+<span class="co">#' f(7) # returns 8</span>
+<span class="co">#'</span>
+f &lt;-<span class="st"> </span><span class="cf">function</span>(x, ..., <span class="dt">inc =</span> <span class="dv">1</span>) {
+   wrapr<span class="op">::</span><span class="kw">stop_if_dot_args</span>(<span class="kw">substitute</span>(<span class="kw">list</span>(...)), <span class="st">&quot;f&quot;</span>)
+   x <span class="op">+</span><span class="st"> </span>inc
+}
+
+<span class="kw">f</span>(<span class="dv">7</span>)</code></pre></div>
+<pre><code>## [1] 8</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">f</span>(<span class="dv">7</span>, <span class="dt">inc =</span> <span class="dv">2</span>)</code></pre></div>
+<pre><code>## [1] 9</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tryCatch</span>(
+  <span class="kw">f</span>(<span class="dv">7</span>, <span class="dt">q =</span> mtcars),
+  <span class="dt">error =</span> <span class="cf">function</span>(e) { <span class="kw">print</span>(e) })</code></pre></div>
+<pre><code>## &lt;simpleError: f unexpected arguments: q = mtcars&gt;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">tryCatch</span>(
+  <span class="kw">f</span>(<span class="dv">7</span>, <span class="dv">2</span>),
+  <span class="dt">error =</span> <span class="cf">function</span>(e) { <span class="kw">print</span>(e) })</code></pre></div>
+<pre><code>## &lt;simpleError: f unexpected arguments: 2&gt;</code></pre>
+<p>By R function evaluation rules: any unexpected/undeclared arguments are captured by the “<code>…</code>” argument. Then “wrapr::stop_if_dot_args()” inspects for such values and reports an error if there are such. The “f” string is returned as part of the error, I chose the name of the function as in this case. The “substitute(list(…))” part is R’s way of making the contents of “…” available for inspection.</p>
+<p>You can also use the technique on required arguments. <a href="https://winvector.github.io/wrapr/reference/stop_if_dot_args.html">wrapr::stop_if_dot_args()</a> is a simple low-dependency helper function intended to make writing code such as the above easier. This is under the rubric that hidden errors are worse than thrown exceptions. It is best to find and signal problems early, and near the cause.</p>
+<p>The idea is that you should not expect a user to remember the positions of more than 1 to 3 arguments, the rest should only be referable by name. Do not make your users count along large sequences of arguments, <a href="https://en.wikipedia.org/wiki/Subitizing">the human brain may have special cases for small sequences</a>.</p>
+<blockquote>
+If you have a procedure with 10 parameters, you probably missed some.
+<p></p>
+<a href="http://pu.inf.uni-tuebingen.de/users/klaeren/epigrams.html">Alan Perlis, “Epigrams on Programming”, ACM SIGPLAN Notices 17 (9), September 1982, pp. 7–13.</a>
+</blockquote>
+<p>Note that the “<code>substitute(list(…))</code>” part is the R idiom for capturing the unevaluated contents of “<code>…</code>”, I felt it best to use standard R as much a possible in favor of introducing any <em>additional</em> magic invocations.</p>
 
 
 
