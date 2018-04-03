@@ -1,4 +1,14 @@
 
+# wrapr 1.4.0 2018-04-03
+
+ * More tests an checks.
+ * Allow lookups at the top level ($, [], [[]], ::, :::, @).
+ * Starting enforcing strict piping rules (with usable error messages).
+ * Move base_fns to https://gist.github.com/JohnMount/1982127318654c8631203e5b5d4946ac and seplyr.
+ * Minor documentation fixes/improvements.
+ * Extend map_to_char() to work without names.
+ * wrapr_function right-dispatch falls back to pipe_step left-disptach as default.
+
 # wrapr 1.3.0 2018-03-12
 
  * base_fns- slight stregnthenings of base operators for piping.

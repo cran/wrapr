@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-The vignette demonstrates the use of `let` to standardize calls to functions that use non-standard evaluation.
+The vignette demonstrates the use of `let` to standardize calls to functions that use non-standard evaluation.  For a more formal description please see [here](https://github.com/WinVector/wrapr/blob/master/extras/wrapr_let.pdf).
 
 For the purposes of this discussion, *standard evaluation* of variables preserves referential transparency: that is, values and references to values behave the same.
 
@@ -83,8 +83,9 @@ However, `wrapr::let()` is actually implemented in terms of a de-parse and strin
 
 For more discussion please see:
 
-  * [our video on non-standard evaluation and `let`](https://youtu.be/iKLGxzzm9Hk?list=PLAKBwakacHbQp_Z66asDnjn-0qttTO-o9)
-  * [Advanced R NSE](http://adv-r.had.co.nz/Computing-on-the-language.html)
-  * [Standard nonstandard evaluation rules](http://developer.r-project.org/nonstandard-eval.pdf)
+  * [our video on non-standard evaluation and `let`](https://youtu.be/iKLGxzzm9Hk?list=PLAKBwakacHbQp_Z66asDnjn-0qttTO-o9).
+  * [Advanced R NSE](http://adv-r.had.co.nz/Computing-on-the-language.html).
+  * [Standard nonstandard evaluation rules](http://developer.r-project.org/nonstandard-eval.pdf).
+  * [technical article on let](https://github.com/WinVector/wrapr/blob/master/extras/wrapr_let.pdf).
 
 

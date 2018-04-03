@@ -2,6 +2,9 @@
 
 #' Pipe step operator
 #'
+#' S3 dispatch on class of pipe_left_arg.
+#' For formal documentation please see \url{https://github.com/WinVector/wrapr/blob/master/extras/wrapr_pipe.pdf}.
+#'
 #' @param pipe_left_arg left argument.
 #' @param pipe_right_arg substitute(pipe_right_arg) argument.
 #' @param pipe_environment environment to evaluate in.
@@ -25,12 +28,84 @@ pipe_step <- function(pipe_left_arg,
 #' @param pipe_name character, name of pipe operator.
 #' @return result
 #'
+#' @examples
+#'
+#' 5 %.>% sin(.)
+#'
 #' @export
 #'
 pipe_step.default <- function(pipe_left_arg,
                               pipe_right_arg,
                               pipe_environment,
                               pipe_name = NULL) {
+  # remove some exceptional cases
+  if(length(pipe_right_arg)<1) {
+    stop("wrapr::pipe does not allow direct piping into NULL/empty")
+  }
+  if(length(pipe_right_arg)==1) {
+    right_text <- as.character(pipe_right_arg)
+    if(length(right_text)==1) {
+      # don't index as argument may be a symbol or character already
+      if(right_text==".") {
+        stop("wrapr::pipe_step.default does not allow direct piping into \".\"")
+      }
+    }
+    if((!is.language(pipe_right_arg)) &&
+       (!is.call(pipe_right_arg)) &&
+       (!is.symbol(pipe_right_arg)) &&
+       (!is.function(pipe_right_arg)) &&
+       ((length(class(pipe_right_arg))<1) ||
+        (length(class(pipe_right_arg))==1) &&
+        (class(pipe_right_arg) %in% c("numeric", "character",
+                                      "logical", "integer",
+                                      "raw", "complex")))) {
+      stop(paste0("wrapr::pipe_step.default does not allow direct piping into simple values such as",
+                  " class:" , class(pipe_right_arg), ", ",
+                  " type:", typeof(pipe_right_arg), "."))
+    }
+  }
+  if(is.call(pipe_right_arg)) {
+    call_text <- as.character(pipe_right_arg[[1]])
+    # mostly grabbing reserved words that are in the middle
+    # of something, or try to alter control flow (like return).
+    if((length(call_text)==1) &&
+       call_text %in% c("else",
+                        "return",
+                        "in", "next", "break",
+                        "TRUE", "FALSE", "NULL", "Inf", "NaN",
+                        "NA", "NA_integer_", "NA_real_", "NA_complex_", "NA_character_",
+                        "->", "->>", "<-", "<<-", "=", # precedence should ensure we do not see these
+                        "?",
+                        "...",
+                        ".",
+                        ";", ",",
+                        "substitute", "bquote", "quote",
+                        "eval", "evalq", "eval.parent", "local",
+                        "force",
+                        "try", "tryCatch",
+                        "withCallingHandlers", "signalCondition",
+                        "simpleCondition", "simpleError", "simpleWarning", "simpleMessage",
+                        "withRestarts", "invokeRestart", "invokeRestartInteractively",
+                        "suppressMessages", "suppressWarnings",
+                        "warning", "stop")) {
+      stop(paste0("wrapr::pipe_step.default does not allow direct piping into certain reserved words or control structures (such as \"",
+                  call_text,
+                  "\")."))
+    }
+  }
+  if(length(pipe_right_arg)==1) {
+    right_text <- as.character(pipe_right_arg)
+    if(length(right_text)<=1) {
+      if(is.call(pipe_right_arg)) {
+        # empty calls of the form f() (easy to detect no-. case)
+        stop(paste0("wrapr::pipe_step.default does not allow direct piping into a no-argument function call expression (such as \"",
+                    right_text,
+                    "()\", please use ",
+                    right_text, "(.))."))
+      }
+    }
+  }
+  force(pipe_left_arg)
   eval(pipe_right_arg,
        envir = pipe_environment,
        enclos = pipe_environment)
@@ -38,10 +113,11 @@ pipe_step.default <- function(pipe_left_arg,
 
 #' Wrapr function.
 #'
-#' S3 dispatch on tyhpe of pipe_right_argument.
+#' S3 dispatch on class of pipe_right_argument.
+#' For formal documentation please see \url{https://github.com/WinVector/wrapr/blob/master/extras/wrapr_pipe.pdf}.
 #'
 #' @param pipe_left_arg left argument.
-#' @param pipe_right_arg right argument.
+#' @param pipe_right_arg right argument (general object, not a function).
 #' @param pipe_environment environment to evaluate in.
 #' @param pipe_name character, name of pipe operator.
 #' @return result
@@ -60,10 +136,17 @@ wrapr_function <- function(pipe_left_arg,
 #' S3 dispatch on tyhpe of pipe_right_argument.
 #'
 #' @param pipe_left_arg left argument.
-#' @param pipe_right_arg right argument.
+#' @param pipe_right_arg right argument (general object, not a function).
 #' @param pipe_environment environment to evaluate in.
 #' @param pipe_name character, name of pipe operator.
 #' @return result
+#'
+#' @examples
+#'
+#' f <- function() { print("execute"); 0}
+#' a <- substitute({. + 1 + f()})
+#' 5 %.>% a
+#'
 #'
 #' @export
 #'
@@ -71,7 +154,11 @@ wrapr_function.default <- function(pipe_left_arg,
                                    pipe_right_arg,
                                    pipe_environment,
                                    pipe_name = NULL) {
-  pipe_right_arg
+  force(pipe_left_arg)
+  # go to default left S3 dispatch on pipe_step()
+  pipe_step(pipe_left_arg, pipe_right_arg,
+            pipe_environment = pipe_environment,
+            pipe_name = pipe_name)
 }
 
 
@@ -89,6 +176,13 @@ pipe_impl <- function(pipe_left_arg,
                       pipe_right_arg,
                       pipe_environment,
                       pipe_name = NULL) {
+  # special case: parenthesis
+  while(is.call(pipe_right_arg) &&
+        (length(pipe_right_arg)==2) &&
+        (length(as.character(pipe_right_arg[[1]]))==1) &&
+        (as.character(pipe_right_arg[[1]])=="(")) {
+    pipe_right_arg <- pipe_right_arg[[2]]
+  }
   # force pipe_left_arg
   pipe_left_arg <- eval(pipe_left_arg,
                         envir = pipe_environment,
@@ -97,12 +191,39 @@ pipe_impl <- function(pipe_left_arg,
   assign(".", pipe_left_arg,
          envir = pipe_environment,
          inherits = FALSE)
+  # special case: name
+  is_name <- is.name(pipe_right_arg)
   # special case: dereference names
-  if(is.name(pipe_right_arg)) {
-    pipe_right_arg <- base::get(as.character(pipe_right_arg),
-                                envir = pipe_environment,
-                                mode = "any",
-                                inherits = TRUE)
+  qualified_name <- is.call(pipe_right_arg) &&
+    (length(pipe_right_arg)==3) &&
+    (length(as.character(pipe_right_arg[[1]]))==1) &&
+    (as.character(pipe_right_arg[[1]]) %in% c("::", ":::", "$", "[[", "[", "@")) &&
+    (is.name(pipe_right_arg[[2]])) &&
+    (as.character(pipe_right_arg[[2]])!=".") &&
+    (is.name(pipe_right_arg[[3]]) || is.character(pipe_right_arg[[3]])) &&
+    (as.character(pipe_right_arg[[3]])!=".")
+  # special case: anonymous funciton decl
+  is_function_decl <- is.call(pipe_right_arg) &&
+    (length(as.character(pipe_right_arg[[1]]))==1) &&
+    (as.character(pipe_right_arg[[1]])=="function")
+  # check for right-apply situations
+  if(is.function(pipe_right_arg) ||
+     is_name || qualified_name ||
+     is_function_decl) {
+    if(is_name) {
+      pipe_right_arg <- base::get(as.character(pipe_right_arg),
+                                  envir = pipe_environment,
+                                  mode = "any",
+                                  inherits = TRUE)
+    } else if(qualified_name) {
+      pipe_right_arg <- base::eval(pipe_right_arg,
+                                   envir = pipe_environment,
+                                   enclos = pipe_environment)
+    } else if(is_function_decl) {
+      pipe_right_arg <- eval(pipe_right_arg,
+                            envir = pipe_environment,
+                            enclos = pipe_environment)
+    }
     # pipe_right_arg is now a value (as far as we are concerned)
     # special case: functions
     if(is.function(pipe_right_arg)) {
@@ -134,6 +255,15 @@ pipe_impl <- function(pipe_left_arg,
 #' The pipe operator has a couple of special cases. First: if the right hand side is a name,
 #' then we try to de-reference it and apply it as a function or surrogate function.
 #'
+#' The pipe operator checks for and throws an exception for a number of "pipled into
+#' nothing cases" such as \code{5 \%.>\% sin()}, many of these checks can be turned
+#' off by adding braces.
+#'
+#' For some discussion, please see \url{http://www.win-vector.com/blog/2017/07/in-praise-of-syntactic-sugar/}.
+#' For some more examples, please see the package README \url{https://github.com/WinVector/wrapr}.
+#' For formal documentation please see \url{https://github.com/WinVector/wrapr/blob/master/extras/wrapr_pipe.pdf}.
+#' \code{\%>.\%} and \code{\%.>\%} are synonyms.
+#'
 #' @param pipe_left_arg left argument expression (substituted into .)
 #' @param pipe_right_arg right argument expession (presumably including .)
 #' @return eval(\{ . <- pipe_left_arg; pipe_right_arg \};)
@@ -162,7 +292,13 @@ pipe_impl <- function(pipe_left_arg,
 #' The pipe operator has a couple of special cases. First: if the right hand side is a name,
 #' then we try to de-reference it and apply it as a function or surrogate function.
 #'
+#' The pipe operator checks for and throws an exception for a number of "pipled into
+#' nothing cases" such as \code{5 \%.>\% sin()}, many of these checks can be turned
+#' off by adding braces.
+#'
 #' For some discussion, please see \url{http://www.win-vector.com/blog/2017/07/in-praise-of-syntactic-sugar/}.
+#' For some more examples, please see the package README \url{https://github.com/WinVector/wrapr}.
+#' For formal documentation please see \url{https://github.com/WinVector/wrapr/blob/master/extras/wrapr_pipe.pdf}.
 #' \code{\%>.\%} and \code{\%.>\%} are synonyms.
 #'
 #' @param pipe_left_arg left argument expression (substituted into .)

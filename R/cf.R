@@ -147,11 +147,12 @@ build_frame <- function(..., cf_eval_environment = parent.frame()) {
                           use.names = FALSE)
     }
   }
+  rownames(fr) <- NULL
   fr
 }
 
 
-#' Render a data.frame in draw_frame form.
+#' Render a data.frame in build_frame format.
 #'
 #' @param x data.frame (atomic types, with at least 1 row and 1 column).
 #' @param ... not used for values, forces later arguments to bind by name.
@@ -344,6 +345,7 @@ qchar_frame <- function(...) {
                              byrow = TRUE),
                       stringsAsFactors = FALSE)
   colnames(fr) <- vu[seq_len(ncol)]
+  rownames(fr) <- NULL
   fr
 }
 

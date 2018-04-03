@@ -10,7 +10,7 @@
 \arguments{
 \item{pipe_left_arg}{left argument.}
 
-\item{pipe_right_arg}{right argument.}
+\item{pipe_right_arg}{right argument (general object, not a function).}
 
 \item{pipe_environment}{environment to evaluate in.}
 
@@ -21,4 +21,12 @@ result
 }
 \description{
 S3 dispatch on tyhpe of pipe_right_argument.
+}
+\examples{
+
+f <- function() { print("execute"); 0}
+a <- substitute({. + 1 + f()})
+5 \%.>\% a
+
+
 }
