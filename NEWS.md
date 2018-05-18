@@ -1,7 +1,17 @@
 
+# wrapr 1.4.1 2018-05-17
+
+ * Move dot assignment into S3 step.
+ * Refine error checking.
+ * Minor documentation fixes.
+ * Fix print/visibility treatment.
+ * Remove special 1-key case from := .
+ * draw_frame NA handling.
+ * Add view().
+ 
 # wrapr 1.4.0 2018-04-03
 
- * More tests an checks.
+ * More tests and checks.
  * Allow lookups at the top level ($, [], [[]], ::, :::, @).
  * Starting enforcing strict piping rules (with usable error messages).
  * Move base_fns to https://gist.github.com/JohnMount/1982127318654c8631203e5b5d4946ac and seplyr.
