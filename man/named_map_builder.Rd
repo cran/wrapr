@@ -3,11 +3,14 @@
 \name{named_map_builder}
 \alias{named_map_builder}
 \alias{:=}
+\alias{\%:=\%}
 \title{Named map builder.}
 \usage{
 named_map_builder(names, values)
 
 ":="(names, values)
+
+names \%:=\% values
 }
 \arguments{
 \item{names}{names to set.}
@@ -48,4 +51,7 @@ f(7)
 f <- x := { sqrt(x) }
 f(7)
 
+}
+\seealso{
+\code{\link{lambda}}, \code{\link{defineLambda}}, \code{\link{makeFunction_se}}
 }

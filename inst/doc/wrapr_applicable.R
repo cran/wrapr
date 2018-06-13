@@ -17,22 +17,12 @@ library("wrapr")
 function_reference <- list(f = sin)
 class(function_reference) <- c("wrapr_applicable", "ourclass")
 
-#' Wrapr function.
-#'
-#' S3 dispatch on tyhpe of pipe_right_argument.
-#'
-#' @param pipe_left_arg left argument.
-#' @param pipe_right_arg right argument.
-#' @param pipe_environment environment to evaluate in.
-#' @param pipe_name character, name of pipe operator.
-#' @return result
-#'
-#' @export
-#'
-wrapr_function.ourclass <- function(pipe_left_arg, 
+apply_right.ourclass <- function(pipe_left_arg,
                                     pipe_right_arg,
                                     pipe_environment,
-                                    pipe_name) {
+                                    left_arg_name,
+                                    pipe_string,
+                                    right_arg_name) {
   pipe_right_arg$f(pipe_left_arg)
 }
 
@@ -44,20 +34,30 @@ function_reference$f <- sqrt
 5 %.>% function_reference
 
 ## ----debug---------------------------------------------------------------
-wrapr_function.ourclass <- function(pipe_left_arg, 
-                                    pipe_right_arg,
-                                    pipe_environment,
-                                    pipe_name) {
+apply_right.ourclass <- function(pipe_left_arg,
+                                 pipe_right_arg,
+                                 pipe_environment,
+                                 left_arg_name,
+                                 pipe_string,
+                                 right_arg_name) {
   print("pipe_left_arg")
   print(pipe_left_arg)
   print("pipe_right_arg")
   print(pipe_right_arg)
   print("pipe_environment")
   print(pipe_environment)
-  print("pipe_name")
-  print(pipe_name)
+  print("left_arg_name")
+  print(left_arg_name)
+  print("pipe_string")
+  print(pipe_string)
+  print("right_arg_name")
+  print(right_arg_name)
   pipe_right_arg$f(pipe_left_arg)
 }
 
 5 %.>% function_reference
+
+a <- 5
+
+a %.>% function_reference
 

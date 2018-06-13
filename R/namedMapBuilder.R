@@ -9,6 +9,8 @@
 #' @param values values to assign names to (and return).
 #' @return values with names set.
 #'
+#' @seealso \code{\link{lambda}}, \code{\link{defineLambda}}, \code{\link{makeFunction_se}}
+#'
 #' @examples
 #'
 #'
@@ -46,19 +48,6 @@ named_map_builder <- function(names, values) {
   values
 }
 
-#' @rdname named_map_builder
-#' @export
-`:=` <- function(names, values) {
-  # check if this was a lambda assignment in disguise
-  # only consider so at this checkif if RHS is {}
-  # else let S3 disptach on formula pick this up
-  res <- early_tries(substitute(names), substitute(values), values)
-  if(!is.null(res)) {
-    return(res)
-  }
-  # use standard S3 dispatch
-  UseMethod(":=")
-}
 
 # pretty much assume vector name assignment, or function definiton
 # need this to grab unevaluated cases
@@ -86,6 +75,23 @@ early_tries <- function(nm, vl, values) {
   NULL # continue in the normal way
 }
 
+
+
+
+#' @rdname named_map_builder
+#' @export
+`:=` <- function(names, values) {
+  # check if this was a lambda assignment in disguise
+  # only consider so at this checkif if RHS is {}
+  # else let S3 disptach on formula pick this up
+  res <- early_tries(substitute(names), substitute(values), values)
+  if(!is.null(res)) {
+    return(res)
+  }
+  # use standard S3 dispatch
+  UseMethod(":=")
+}
+
 #' @export
 `:=.character` <- named_map_builder
 
@@ -94,4 +100,33 @@ early_tries <- function(nm, vl, values) {
 
 #' @export
 `:=.list` <- named_map_builder
+
+
+
+
+#' @rdname named_map_builder
+#' @export
+`%:=%` <- function(names, values) {
+  # check if this was a lambda assignment in disguise
+  # only consider so at this checkif if RHS is {}
+  # else let S3 disptach on formula pick this up
+  res <- early_tries(substitute(names), substitute(values), values)
+  if(!is.null(res)) {
+    return(res)
+  }
+  # use standard S3 dispatch
+  UseMethod("%:=%")
+}
+
+#' @export
+`%:=%.character` <- named_map_builder
+
+#' @export
+`%:=%.numeric` <- named_map_builder
+
+#' @export
+`%:=%.list` <- named_map_builder
+
+
+
 

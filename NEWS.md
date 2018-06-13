@@ -1,4 +1,15 @@
 
+# wrapr 1.5.0 2018-06-13
+
+ * Rationalize and re-name pipe interfaces to apply_right and apply_left.
+ * Fix qc() eval environment and recursion.
+ * Add `%?%` coalescing operator.
+ * Add reduce/expand operators.
+ * Dot pipe tries to preserve names in function calls.
+ * Improve error checking and reporting.
+ * Add uniques().
+ * Add partition_tables() and execute_parallel().
+
 # wrapr 1.4.1 2018-05-17
 
  * Move dot assignment into S3 step.
