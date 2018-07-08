@@ -1,4 +1,6 @@
 
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/wrapr)](https://cran.r-project.org/package=wrapr)
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 [`wrapr`](https://winvector.github.io/wrapr/), is an [`R`](https://cran.r-project.org) package that supplies powerful tools for writing and debugging `R` code.
 
@@ -174,9 +176,9 @@ str(x)
  #   $ validation: num  -7 0.6
 cat(draw_frame(x))
  #  wrapr::build_frame(
- #     "measure"                   , "training", "validation" |
- #     "minus binary cross entropy", 5         , -7           |
- #     "accuracy"                  , 0.8       , 0.6          )
+ #     'measure'                   , 'training', 'validation' |
+ #     'minus binary cross entropy', 5         , -7           |
+ #     'accuracy'                  , 0.8       , 0.6          )
 ```
 
 [`qc()` (quoting concatenate)](https://winvector.github.io/wrapr/reference/qc.html)
@@ -272,13 +274,13 @@ wrapr::defineLambda()
 sapply(1:4, λ(x, x^2))
  #  [1]  1  4  9 16
 
-# alternat "colon equals with braces" function builder notation
+# alternate "colon equals with braces" function builder notation
 sapply(1:4, x := { x^2 })
  #  [1]  1  4  9 16
 ```
 
-Installing
-----------
+Installation
+------------
 
 Install with either:
 

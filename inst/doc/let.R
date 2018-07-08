@@ -20,10 +20,10 @@ library("wrapr")
 xvariable = "xvar"
 yvariable = "yvar"
 let(
-  list(X=xvariable, Y=yvariable),
+  c(XVARIABLE=xvariable, YVARIABLE=yvariable),
   { # since we have the names as strings, we can create a title
     title = paste(yvariable, "vs", xvariable)
-    plot(X, Y, main=title)
+    plot(XVARIABLE, YVARIABLE, main=title)
   }
 )
 

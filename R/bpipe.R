@@ -88,7 +88,7 @@ apply_left.default <- function(pipe_left_arg,
     # of something, or try to alter control flow (like return).
     if(isTRUE(call_text %in% forbidden_pipe_destination_names)) {
       stop(paste0("to reduce surprising execution behavior wrapr::apply_left.default does not allow direct piping into some expressions (such as \"",
-                  deparse(pipe_right_arg),
+                  wrapr_deparse(pipe_right_arg),
                   "\")."))
     }
   }
@@ -186,13 +186,17 @@ apply_right.default <- function(pipe_left_arg,
 
 #' Pipe dispatch implementation.
 #'
+#' This is a helper for implementing additional pipes.
+#'
 #' @param pipe_left_arg substitute(pipe_left_arg) argument.
 #' @param pipe_right_arg substitute(pipe_right_arg) argument.
 #' @param pipe_environment environment to evaluate in.
 #' @param pipe_string character, name of pipe operator.
 #' @return result
 #'
-#' @noRd
+#' @keywords internal
+#'
+#' @export
 #'
 pipe_impl <- function(pipe_left_arg,
                       pipe_right_arg,
