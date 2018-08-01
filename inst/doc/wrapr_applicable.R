@@ -18,11 +18,11 @@ function_reference <- list(f = sin)
 class(function_reference) <- c("wrapr_applicable", "ourclass")
 
 apply_right.ourclass <- function(pipe_left_arg,
-                                    pipe_right_arg,
-                                    pipe_environment,
-                                    left_arg_name,
-                                    pipe_string,
-                                    right_arg_name) {
+                                 pipe_right_arg,
+                                 pipe_environment,
+                                 left_arg_name,
+                                 pipe_string,
+                                 right_arg_name) {
   pipe_right_arg$f(pipe_left_arg)
 }
 

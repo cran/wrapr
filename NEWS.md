@@ -1,4 +1,11 @@
 
+# wrapr 1.6.0 2018-08-01
+ 
+ * S4 dispatch apply_right_S4.
+ * split based partition_tables().
+ * Allow drawing of empty data.frames.
+ * Documentation fixes.
+
 # wrapr 1.5.1 2018-07-07
 
  * make pipe_impl public (but keyworld internal).

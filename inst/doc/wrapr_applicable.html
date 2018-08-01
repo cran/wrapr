@@ -12,7 +12,7 @@
 
 <meta name="author" content="John Mount, Win-Vector LLC" />
 
-<meta name="date" content="2018-07-07" />
+<meta name="date" content="2018-08-01" />
 
 <title>wrapr_applicable</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">wrapr_applicable</h1>
 <h4 class="author"><em>John Mount, Win-Vector LLC</em></h4>
-<h4 class="date"><em>2018-07-07</em></h4>
+<h4 class="date"><em>2018-08-01</em></h4>
 
 
 
@@ -100,11 +100,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">class</span>(function_reference) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;wrapr_applicable&quot;</span>, <span class="st">&quot;ourclass&quot;</span>)
 
 apply_right.ourclass &lt;-<span class="st"> </span><span class="cf">function</span>(pipe_left_arg,
-                                    pipe_right_arg,
-                                    pipe_environment,
-                                    left_arg_name,
-                                    pipe_string,
-                                    right_arg_name) {
+                                 pipe_right_arg,
+                                 pipe_environment,
+                                 left_arg_name,
+                                 pipe_string,
+                                 right_arg_name) {
   pipe_right_arg<span class="op">$</span><span class="kw">f</span>(pipe_left_arg)
 }
 
@@ -126,7 +126,9 @@ function_reference<span class="op">$</span>f &lt;-<span class="st"> </span>sqrt
 <li><code>pipe_left_arg</code>: The value moving down the pipeline.</li>
 <li><code>pipe_right_arg</code>: The right pipeline operator (essentially “<code>self</code>” or “<code>this</code>” in object oriented terms, used for <code>S3</code> dispatch).</li>
 <li><code>pipe_environment</code>: The environment the pipeline is working in (not usually needed).</li>
-<li>`pipe_name: The name of the pipe operator (not usually needed).</li>
+<li><code>left_arg_name</code>: If the left arguement was passed in by name, what that name was.</li>
+<li><code>pipe_string</code>: The name of the pipe operator (not usually needed).</li>
+<li><code>right_arg_name</code>: If the right arguement was passed in by name, what that name was.</li>
 </ul>
 <p>This functionality allows arbitrary objects to directly specify their intended pipeline behavior.</p>
 <p>Let’s use a debugging function to see the values of all of the arguments.</p>

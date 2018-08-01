@@ -54,7 +54,7 @@ forbidden_pipe_destination_names <- c("else",
 
 #' S3 dispatch on class of pipe_left_arg.
 #'
-#' Place evalation of left argument in \code{.} and then evaluate right argument.
+#' Place evaluation of left argument in \code{.} and then evaluate right argument.
 #'
 #' @param pipe_left_arg left argument
 #' @param pipe_right_arg substitute(pipe_right_arg) argument
@@ -101,20 +101,25 @@ apply_left.default <- function(pipe_left_arg,
        enclos = pipe_environment)
 }
 
+
+
+
+
 #' S3 dispatch on class of pipe_right_argument.
 #'
-#' Triggered if right hand side was a name that does not resolve to a function.
+#' Triggered if right hand side of pipe stage was a name that does not resolve to a function.
 #' For formal documentation please see \url{https://github.com/WinVector/wrapr/blob/master/extras/wrapr_pipe.pdf}.
 #'
+#'
 #' @param pipe_left_arg left argument
-#' @param pipe_right_arg substitute(pipe_right_arg) argument
+#' @param pipe_right_arg right argument
 #' @param pipe_environment environment to evaluate in
 #' @param left_arg_name name, if not NULL name of left argument.
 #' @param pipe_string character, name of pipe operator.
 #' @param right_arg_name name, if not NULL name of right argument.
 #' @return result
 #'
-#' @seealso \code{\link{apply_right.default}}
+#' @seealso \code{\link{apply_left}}, \code{\link{apply_right_S4}}
 #'
 #' @examples
 #'
@@ -144,11 +149,57 @@ apply_right <- function(pipe_left_arg,
   UseMethod("apply_right", pipe_right_arg)
 }
 
-#' S3 dispatch on type of pipe_right_argument.
+
+#' Default apply_right implementation.
 #'
-#' Triggered if right hand side was a name that does not resolve to a function.
-#' Default implementation is re-dispatch through \code{\link{apply_left}}.
-#' Currently this is not thought to be a common execution case.
+#' Default apply_right implementation: S4 dispatch to apply_right_S4.
+#'
+#' @param pipe_left_arg left argument
+#' @param pipe_right_arg substitute(pipe_right_arg) argument
+#' @param pipe_environment environment to evaluate in
+#' @param left_arg_name name, if not NULL name of left argument.
+#' @param pipe_string character, name of pipe operator.
+#' @param right_arg_name name, if not NULL name of right argument.
+#' @return result
+#'
+#' @seealso \code{\link{apply_left}}, \code{\link{apply_right}}, \code{\link{apply_right_S4}}
+#'
+#' @examples
+#'
+#' # simulate a function pointer
+#' apply_right.list <- function(pipe_left_arg,
+#'                              pipe_right_arg,
+#'                              pipe_environment,
+#'                              left_arg_name,
+#'                              pipe_string,
+#'                              right_arg_name) {
+#'   pipe_right_arg$f(pipe_left_arg)
+#' }
+#'
+#' f <- list(f=sin)
+#' 2 %.>% f
+#' f$f <- cos
+#' 2 %.>% f
+#'
+#' @export
+#'
+apply_right.default <- function(pipe_left_arg,
+                                pipe_right_arg,
+                                pipe_environment,
+                                left_arg_name,
+                                pipe_string,
+                                right_arg_name) {
+  apply_right_S4(pipe_left_arg = pipe_left_arg,
+                 pipe_right_arg = pipe_right_arg,
+                 pipe_environment = pipe_environment,
+                 left_arg_name = left_arg_name,
+                 pipe_string = pipe_string,
+                 right_arg_name = right_arg_name)
+}
+
+#' S4 dispatch method for apply_right.
+#'
+#' Intended to be generic on first two arguments.
 #'
 #' @param pipe_left_arg left argument
 #' @param pipe_right_arg substitute(pipe_right_arg) argument
@@ -162,18 +213,34 @@ apply_right <- function(pipe_left_arg,
 #'
 #' @examples
 #'
-#' v <- list(1, 2)
-#' f <- function(z) { format(z) }
-#' f %.>% v
+#' a <- data.frame(x = 1)
+#' b <- data.frame(x = 2)
+#'
+#' # a %.>% b # will equal b
+#'
+#' setMethod(
+#'   "apply_right_S4",
+#'   signature("data.frame", "data.frame"),
+#'   function(pipe_left_arg,
+#'            pipe_right_arg,
+#'            pipe_environment,
+#'            left_arg_name,
+#'            pipe_string,
+#'            right_arg_name) {
+#'     rbind(pipe_left_arg, pipe_right_arg)
+#'   })
+#'
+#'
+#' a %.>% b # should equal data.frame(x = c(1, 2))
 #'
 #' @export
 #'
-apply_right.default <- function(pipe_left_arg,
-                                pipe_right_arg,
-                                pipe_environment,
-                                left_arg_name,
-                                pipe_string,
-                                right_arg_name) {
+apply_right_S4 <- function(pipe_left_arg,
+                           pipe_right_arg,
+                           pipe_environment,
+                           left_arg_name,
+                           pipe_string,
+                           right_arg_name) {
   # go to default left S3 dispatch on apply_left()
   apply_left(pipe_left_arg = pipe_left_arg,
              pipe_right_arg = pipe_right_arg,
@@ -182,6 +249,10 @@ apply_right.default <- function(pipe_left_arg,
              pipe_string = pipe_string,
              right_arg_name = right_arg_name)
 }
+
+# lash in S4 dispatch
+methods::setGeneric(
+  name = "apply_right_S4")
 
 
 #' Pipe dispatch implementation.
@@ -322,7 +393,7 @@ pipe_impl <- function(pipe_left_arg,
 #' The pipe operator has a couple of special cases. First: if the right hand side is a name,
 #' then we try to de-reference it and apply it as a function or surrogate function.
 #'
-#' The pipe operator checks for and throws an exception for a number of "pipled into
+#' The pipe operator checks for and throws an exception for a number of "piped into
 #' nothing cases" such as \code{5 \%.>\% sin()}, many of these checks can be turned
 #' off by adding braces.
 #'
@@ -332,7 +403,7 @@ pipe_impl <- function(pipe_left_arg,
 #' \code{\%>.\%} and \code{\%.>\%} are synonyms.
 #'
 #' @param pipe_left_arg left argument expression (substituted into .)
-#' @param pipe_right_arg right argument expession (presumably including .)
+#' @param pipe_right_arg right argument expression (presumably including .)
 #' @return eval(\{ . <- pipe_left_arg; pipe_right_arg \};)
 #'
 #' @examples

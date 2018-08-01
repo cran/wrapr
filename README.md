@@ -2,7 +2,7 @@
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/wrapr)](https://cran.r-project.org/package=wrapr)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[`wrapr`](https://winvector.github.io/wrapr/), is an [`R`](https://cran.r-project.org) package that supplies powerful tools for writing and debugging `R` code.
+[`wrapr`](https://winvector.github.io/wrapr/) is an [`R`](https://cran.r-project.org) package that supplies powerful tools for writing and debugging `R` code.
 
 ![](https://github.com/WinVector/wrapr/raw/master/tools/wraprs.png)
 
@@ -175,10 +175,10 @@ str(x)
  #   $ training  : num  5 0.8
  #   $ validation: num  -7 0.6
 cat(draw_frame(x))
- #  wrapr::build_frame(
- #     'measure'                   , 'training', 'validation' |
- #     'minus binary cross entropy', 5         , -7           |
- #     'accuracy'                  , 0.8       , 0.6          )
+ #  x <- wrapr::build_frame(
+ #     "measure"                   , "training", "validation" |
+ #     "minus binary cross entropy", 5         , -7           |
+ #     "accuracy"                  , 0.8       , 0.6          )
 ```
 
 [`qc()` (quoting concatenate)](https://winvector.github.io/wrapr/reference/qc.html)

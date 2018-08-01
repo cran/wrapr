@@ -2,13 +2,13 @@
 % Please edit documentation in R/partition_tables.R
 \name{partition_tables}
 \alias{partition_tables}
-\title{Partition as set of talbes into a list.}
+\title{Partition as set of tables into a list.}
 \usage{
 partition_tables(tables_used, partition_column, ..., source_usage = NULL,
   source_limit = NULL, tables = NULL, env = NULL)
 }
 \arguments{
-\item{tables_used}{charater, names of tables to look for.}
+\item{tables_used}{character, names of tables to look for.}
 
 \item{partition_column}{character, name of column to partition by (tables should not have NAs in this column).}
 
@@ -30,8 +30,10 @@ Partition a set of tables into a list of sets of tables.  Note: removes rownames
 }
 \examples{
 
-d <- data.frame(a = 1:5, g = c(1, 1, 2, 2, 2))
-partition_tables("d", "g", tables = list(d = d))
+d1 <- data.frame(a = 1:5, g = c(1, 1, 2, 2, 2))
+d2 <- data.frame(x = 1:3, g = 1:3)
+d3 <- data.frame(y = 1)
+partition_tables(c("d1", "d2", "d3"), "g", tables = list(d1 = d1, d2 = d2, d3 = d3))
 
 }
 \seealso{

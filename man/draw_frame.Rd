@@ -2,13 +2,13 @@
 % Please edit documentation in R/cf.R
 \name{draw_frame}
 \alias{draw_frame}
-\title{Render a data.frame in build_frame format.}
+\title{Render a simple data.frame in build_frame format.}
 \usage{
 draw_frame(x, ..., time_format = "\%Y-\%m-\%d \%H:\%M:\%S",
   formatC_options = list())
 }
 \arguments{
-\item{x}{data.frame (atomic types, with at least 1 row and 1 column).}
+\item{x}{data.frame (with atomic types).}
 
 \item{...}{not used for values, forces later arguments to bind by name.}
 
@@ -17,10 +17,10 @@ draw_frame(x, ..., time_format = "\%Y-\%m-\%d \%H:\%M:\%S",
 \item{formatC_options}{named list, options for formatC()- used on numerics.}
 }
 \value{
-chracter
+character
 }
 \description{
-Render a data.frame in build_frame format.
+Render a simple data.frame in build_frame format.
 }
 \examples{
 

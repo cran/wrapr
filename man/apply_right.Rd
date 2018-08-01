@@ -10,7 +10,7 @@ apply_right(pipe_left_arg, pipe_right_arg, pipe_environment, left_arg_name,
 \arguments{
 \item{pipe_left_arg}{left argument}
 
-\item{pipe_right_arg}{substitute(pipe_right_arg) argument}
+\item{pipe_right_arg}{right argument}
 
 \item{pipe_environment}{environment to evaluate in}
 
@@ -24,7 +24,7 @@ apply_right(pipe_left_arg, pipe_right_arg, pipe_environment, left_arg_name,
 result
 }
 \description{
-Triggered if right hand side was a name that does not resolve to a function.
+Triggered if right hand side of pipe stage was a name that does not resolve to a function.
 For formal documentation please see \url{https://github.com/WinVector/wrapr/blob/master/extras/wrapr_pipe.pdf}.
 }
 \examples{
@@ -46,5 +46,5 @@ f$f <- cos
 
 }
 \seealso{
-\code{\link{apply_right.default}}
+\code{\link{apply_left}}, \code{\link{apply_right_S4}}
 }
