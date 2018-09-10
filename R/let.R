@@ -281,6 +281,8 @@ letprep_lang <- function(alias, lexpr) {
 #' back-ticks) are forbidden.  It is suggested that substitution targets be written
 #' \code{ALL_CAPS} style to make them stand out.
 #'
+#' \code{let} was inspired by \code{gtools:strmacro()}.  Please see \url{https://github.com/WinVector/wrapr/blob/master/extras/bquote.md} for a discussion of macro tools in \code{R}.
+#'
 #'
 #' @param alias mapping from free names in expr to target names to use (mapping have both unique names and unique values).
 #' @param expr block to prepare for execution.
@@ -292,34 +294,32 @@ letprep_lang <- function(alias, lexpr) {
 #' @param debugPrint logical if TRUE print debugging information when in stringsubs mode.
 #' @return result of expr executed in calling environment (or expression if eval==FALSE).
 #'
+#' @seealso \code{\link[base]{bquote}}, \code{\link[base]{do.call}}
+#'
 #' @examples
 #'
-#' d <- data.frame(Sepal_Length=c(5.8,5.7),
-#'                 Sepal_Width=c(4.0,4.4),
-#'                 Species='setosa',
-#'                 rank=c(1,2))
+#' d <- data.frame(
+#'   Sepal_Length=c(5.8,5.7),
+#'   Sepal_Width=c(4.0,4.4),
+#'   Species='setosa')
 #'
-#' RANKCOLUMN <- NULL # optional, make sure macro target does not look like unbound variable.
-#' GROUPCOLUMN <- NULL # optional, make sure macro target does not look like unbound variable.
-#' mapping = c(RANKCOLUMN= 'rank', GROUPCOLUMN= 'Species')
-#' let(alias = mapping,
-#'     expr = {
-#'        # Notice code here can be written in terms of known or concrete
-#'        # names "RANKCOLUMN" and "GROUPCOLUMN", but executes as if we
-#'        # had written mapping specified columns "rank" and "Species".
+#' mapping <- qc(
+#'   AREA_COL = Sepal_area,
+#'   LENGTH_COL = Sepal_Length,
+#'   WIDTH_COL = Sepal_Width
+#' )
 #'
-#'        # restart ranks at zero.
-#'        dres <- d
-#'        dres$RANKCOLUMN <- dres$RANKCOLUMN - 1 # notice, using $ not [[]]
+#' # let-block notation
+#' let(
+#'   mapping,
+#'   d %.>%
+#'     transform(., AREA_COL = LENGTH_COL * WIDTH_COL)
+#' )
 #'
-#'        # confirm set of groups.
-#'        groups <- unique(d$GROUPCOLUMN)
-#'     },
-#'     debugPrint = TRUE
-#'     )
-#' print(groups)
-#' print(length(groups))
-#' print(dres)
+#'
+#' # Note: in packages can make assignment such as:
+#' #   AREA_COL <- LENGTH_COL <- WIDTH_COL <- NULL
+#' # prior to code so targets don't look like unbound names.
 #'
 #'
 #' @export
@@ -370,6 +370,60 @@ let <- function(alias, expr,
   eval(exprS,
        envir=envir,
        enclos=envir)
+}
+
+
+#' Inline let-block notation.
+#'
+#' Inline version of \code{let}-block.
+#'
+#' @param a (left argument) named character vector with target names as names, and replacement names as values.
+#' @param b (right argument) expression or block to evaluate under let substitution rules.
+#' @return evaluated block.
+#'
+#' @examples
+#'
+#' d <- data.frame(
+#'   Sepal_Length=c(5.8,5.7),
+#'   Sepal_Width=c(4.0,4.4),
+#'   Species='setosa')
+#'
+#' # let-block notation
+#' let(
+#'   qc(
+#'     AREA_COL = Sepal_area,
+#'     LENGTH_COL = Sepal_Length,
+#'     WIDTH_COL = Sepal_Width
+#'   ),
+#'   d %.>%
+#'     transform(., AREA_COL = LENGTH_COL * WIDTH_COL)
+#' )
+#'
+#' # %in_block% notation
+#' qc(
+#'   AREA_COL = Sepal_area,
+#'   LENGTH_COL = Sepal_Length,
+#'   WIDTH_COL = Sepal_Width
+#' ) %in_block% {
+#'   d %.>%
+#'     transform(., AREA_COL = LENGTH_COL * WIDTH_COL)
+#' }
+#'
+#' # Note: in packages can make assignment such as:
+#' #   AREA_COL <- LENGTH_COL <- WIDTH_COL <- NULL
+#' # prior to code so targets don't look like unbound names.
+#'
+#' @export
+#'
+#' @seealso \code{\link{let}}
+#'
+`%in_block%` <- function(a, b) {
+  env = parent.frame()
+  do.call(let,
+          list(
+            expr = substitute(b),
+            alias = a,
+            envir = env))
 }
 
 

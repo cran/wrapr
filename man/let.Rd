@@ -60,35 +60,36 @@ that is the more properly left to \code{R}'s environment systems.
 outcomes that are not valid simple \code{R} variable names (produced with out use of
 back-ticks) are forbidden.  It is suggested that substitution targets be written
 \code{ALL_CAPS} style to make them stand out.
+
+\code{let} was inspired by \code{gtools:strmacro()}.  Please see \url{https://github.com/WinVector/wrapr/blob/master/extras/bquote.md} for a discussion of macro tools in \code{R}.
 }
 \examples{
 
-d <- data.frame(Sepal_Length=c(5.8,5.7),
-                Sepal_Width=c(4.0,4.4),
-                Species='setosa',
-                rank=c(1,2))
+d <- data.frame(
+  Sepal_Length=c(5.8,5.7),
+  Sepal_Width=c(4.0,4.4),
+  Species='setosa')
 
-RANKCOLUMN <- NULL # optional, make sure macro target does not look like unbound variable.
-GROUPCOLUMN <- NULL # optional, make sure macro target does not look like unbound variable.
-mapping = c(RANKCOLUMN= 'rank', GROUPCOLUMN= 'Species')
-let(alias = mapping,
-    expr = {
-       # Notice code here can be written in terms of known or concrete
-       # names "RANKCOLUMN" and "GROUPCOLUMN", but executes as if we
-       # had written mapping specified columns "rank" and "Species".
+mapping <- qc(
+  AREA_COL = Sepal_area,
+  LENGTH_COL = Sepal_Length,
+  WIDTH_COL = Sepal_Width
+)
 
-       # restart ranks at zero.
-       dres <- d
-       dres$RANKCOLUMN <- dres$RANKCOLUMN - 1 # notice, using $ not [[]]
-
-       # confirm set of groups.
-       groups <- unique(d$GROUPCOLUMN)
-    },
-    debugPrint = TRUE
-    )
-print(groups)
-print(length(groups))
-print(dres)
+# let-block notation
+let(
+  mapping,
+  d \%.>\%
+    transform(., AREA_COL = LENGTH_COL * WIDTH_COL)
+)
 
 
+# Note: in packages can make assignment such as:
+#   AREA_COL <- LENGTH_COL <- WIDTH_COL <- NULL
+# prior to code so targets don't look like unbound names.
+
+
+}
+\seealso{
+\code{\link[base]{bquote}}, \code{\link[base]{do.call}}
 }
