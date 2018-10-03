@@ -12,7 +12,7 @@
 
 <meta name="author" content="John Mount" />
 
-<meta name="date" content="2018-09-10" />
+<meta name="date" content="2018-10-03" />
 
 <title>Substitution Modes</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Substitution Modes</h1>
 <h4 class="author"><em>John Mount</em></h4>
-<h4 class="date"><em>2018-09-10</em></h4>
+<h4 class="date"><em>2018-10-03</em></h4>
 
 
 
@@ -86,6 +86,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  {
     d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="st">&quot;X&quot;</span> =<span class="st"> &quot;X&quot;</span>, <span class="dt">X2 =</span> <span class="st">&quot;XX&quot;</span>, <span class="dt">d =</span> X<span class="op">*</span>X, <span class="dt">.X =</span> X_)
     X &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">X =</span> d<span class="op">$</span>X, <span class="dt">X2 =</span> d<span class="op">$</span><span class="st">&quot;X&quot;</span>, <span class="dt">v1 =</span> <span class="st">`</span><span class="dt">X</span><span class="st">`</span>, <span class="dt">v2 =</span> <span class="st">`</span><span class="dt"> X</span><span class="st">`</span>, <span class="kw">F</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>))
+    X<span class="op">$</span>a
+    <span class="st">&quot;X&quot;</span><span class="op">$</span>a
+    X =<span class="st"> </span><span class="cf">function</span>(X, ...) { X <span class="op">+</span><span class="st"> </span><span class="dv">1</span> }
   }</code></pre></div>
 <p>This block a lot of different examples and corner-cases.</p>
 <div id="language-substitution-subsmethodlangsubs" class="section level4">
@@ -97,11 +100,19 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   {
     d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="st">&quot;X&quot;</span> =<span class="st"> &quot;X&quot;</span>, <span class="dt">X2 =</span> <span class="st">&quot;XX&quot;</span>, <span class="dt">d =</span> X<span class="op">*</span>X, <span class="dt">.X =</span> X_)
     X &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">X =</span> d<span class="op">$</span>X, <span class="dt">X2 =</span> d<span class="op">$</span><span class="st">&quot;X&quot;</span>, <span class="dt">v1 =</span> <span class="st">`</span><span class="dt">X</span><span class="st">`</span>, <span class="dt">v2 =</span> <span class="st">`</span><span class="dt"> X</span><span class="st">`</span>, <span class="kw">F</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>))
+    X<span class="op">$</span>a
+    <span class="st">&quot;X&quot;</span><span class="op">$</span>a
+    X =<span class="st"> </span><span class="cf">function</span>(X, ...) { X <span class="op">+</span><span class="st"> </span><span class="dv">1</span> }
   },
   <span class="dt">eval =</span> <span class="ot">FALSE</span>, <span class="dt">subsMethod =</span> <span class="st">'langsubs'</span>)</code></pre></div>
 <pre><code>## {
 ##     d &lt;- data.frame(y = &quot;X&quot;, X2 = &quot;XX&quot;, d = y * y, .X = X_)
 ##     y &lt;- list(y = d$y, X2 = d$y, v1 = y, v2 = ` X`, sin(1:2))
+##     y$a
+##     &quot;X&quot;$a
+##     y = function(y, ...) {
+##         y + 1
+##     }
 ## }</code></pre>
 <p>Notice the substitution replaced all symbol-like uses of “<code>X</code>”, and only these (including correctly working with some that were quoted!).</p>
 </div>
@@ -112,11 +123,19 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   {
     d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="st">&quot;X&quot;</span> =<span class="st"> &quot;X&quot;</span>, <span class="dt">X2 =</span> <span class="st">&quot;XX&quot;</span>, <span class="dt">d =</span> X<span class="op">*</span>X, <span class="dt">.X =</span> X_)
     X &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">X =</span> d<span class="op">$</span>X, <span class="dt">X2 =</span> d<span class="op">$</span><span class="st">&quot;X&quot;</span>, <span class="dt">v1 =</span> <span class="st">`</span><span class="dt">X</span><span class="st">`</span>, <span class="dt">v2 =</span> <span class="st">`</span><span class="dt"> X</span><span class="st">`</span>, <span class="kw">F</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>))
+    X<span class="op">$</span>a
+    <span class="st">&quot;X&quot;</span><span class="op">$</span>a
+    X =<span class="st"> </span><span class="cf">function</span>(X, ...) { X <span class="op">+</span><span class="st"> </span><span class="dv">1</span> }
   },
   <span class="dt">eval =</span> <span class="ot">FALSE</span>, <span class="dt">subsMethod =</span> <span class="st">'stringsubs'</span>)</code></pre></div>
 <pre><code>## expression({
 ##     d &lt;- data.frame(y = &quot;y&quot;, X2 = &quot;XX&quot;, d = y * y, .y = X_)
 ##     y &lt;- list(y = d$y, X2 = d$y, v1 = y, v2 = ` y`, sin(1:2))
+##     y$a
+##     &quot;y&quot;$a
+##     y = function(y, ...) {
+##         y + 1
+##     }
 ## })</code></pre>
 <p>Notice string substitution has a few flaws: it went after variable names that appeared to start with a word-boundary (the cases where the variable name started with a dot or a space). Substitution also occurred in some string constants (which as we have seen could be considered a good thing).</p>
 <p>These situations are all avoidable as both the code inside the <code>let</code>-block and the substitution targets are chosen by the programmer, so they can be chosen to be simple and mutually consistent. We suggest “<code>ALL_CAPS</code>” style substitution targets as they jump out as being macro targets. But, of course, it is better to have stricter control on substitution.</p>
@@ -128,11 +147,19 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
     {
       d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="st">&quot;X&quot;</span> =<span class="st"> &quot;X&quot;</span>, <span class="dt">X2 =</span> <span class="st">&quot;XX&quot;</span>, <span class="dt">d =</span> X<span class="op">*</span>X, <span class="dt">.X =</span> X_)
       X &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">X =</span> d<span class="op">$</span>X, <span class="dt">X2 =</span> d<span class="op">$</span><span class="st">&quot;X&quot;</span>, <span class="dt">v1 =</span> <span class="st">`</span><span class="dt">X</span><span class="st">`</span>, <span class="dt">v2 =</span> <span class="st">`</span><span class="dt"> X</span><span class="st">`</span>, <span class="kw">F</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>))
+      X<span class="op">$</span>a
+      <span class="st">&quot;X&quot;</span><span class="op">$</span>a
+      X =<span class="st"> </span><span class="cf">function</span>(X, ...) { X <span class="op">+</span><span class="st"> </span><span class="dv">1</span> }
     },
     <span class="dt">eval =</span> <span class="ot">FALSE</span>, <span class="dt">subsMethod =</span> <span class="st">'subsubs'</span>)</code></pre></div>
 <pre><code>## {
 ##     d &lt;- data.frame(X = &quot;X&quot;, X2 = &quot;XX&quot;, d = y * y, .X = X_)
 ##     y &lt;- list(X = d$y, X2 = d$X, v1 = y, v2 = ` X`, sin(1:2))
+##     y$a
+##     &quot;X&quot;$a
+##     y = function(X, ...) {
+##         y + 1
+##     }
 ## }</code></pre>
 <p>Notice <code>base::substitute()</code> doesn’t re-write left-hand-sides of argument bindings. This is why I originally didn’t consider using this implementation. Re-writing left-hand-sides of assignments is critical in expressions such as <code>dplyr::mutate( RESULTCOL = INPUTCOL + 1)</code>. Also <code>base::substitute()</code> doesn’t special case the <code>d$&quot;X&quot;</code> situation (but that really isn’t very important).</p>
 </div>

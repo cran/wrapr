@@ -281,7 +281,8 @@ letprep_lang <- function(alias, lexpr) {
 #' back-ticks) are forbidden.  It is suggested that substitution targets be written
 #' \code{ALL_CAPS} style to make them stand out.
 #'
-#' \code{let} was inspired by \code{gtools:strmacro()}.  Please see \url{https://github.com/WinVector/wrapr/blob/master/extras/bquote.md} for a discussion of macro tools in \code{R}.
+#' \code{let} was inspired by \code{gtools:strmacro()}.
+#' Please see \url{https://github.com/WinVector/wrapr/blob/master/extras/MacrosInR.md} for a discussion of macro tools in \code{R}.
 #'
 #'
 #' @param alias mapping from free names in expr to target names to use (mapping have both unique names and unique values).
@@ -330,6 +331,7 @@ let <- function(alias, expr,
                 strict= TRUE,
                 eval= TRUE,
                 debugPrint= FALSE) {
+  force(envir)
   exprQ <- substitute(expr)  # do this early before things enter local environment
   stop_if_dot_args(substitute(list(...)), "wrapr::let")
   allowedMethods <- c('langsubs', 'stringsubs', 'subsubs')
@@ -418,7 +420,8 @@ let <- function(alias, expr,
 #' @seealso \code{\link{let}}
 #'
 `%in_block%` <- function(a, b) {
-  env = parent.frame()
+  env <- parent.frame()
+  force(env)  # probably do not need this step
   do.call(let,
           list(
             expr = substitute(b),
