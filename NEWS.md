@@ -1,11 +1,22 @@
 
+# wrapr 1.7.0 2018-11-15
+
+ * bquote enable qc() and other quoting methods.
+ * Preserve NA types in draw_frame.
+ * Add VectorizeM, vapplym, lapplym.
+ * Add bquote_function().
+ * Export underbar version of apply_left_default to get non-S3 version of code.
+ * Better string concat example.
+ * Add %c% and %qc%.
+ * Allow qc() to call c().
+
 # wrapr 1.6.3 2018-10-03
 
  * Make sure parent.frame() is unambiguosly resovled (force()).
  * qe(), qae(), qs() now return character vectors instead of lists.
  * Add psagg().
  * Add grepv().
- * More exaples in SubstitutionModes vignette (show we don't need special pairlist case).
+ * More examples in SubstitutionModes vignette (show we don't need special pairlist case).
  * Allow no-intercept version of formula.
  
 # wrapr 1.6.2 2018-09-10

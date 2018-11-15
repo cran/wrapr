@@ -239,10 +239,13 @@ draw_frame <- function(x,
         xq[[ci]] <- paste0("\"",
                            format(x[[ci]], time_format),
                            "\"")
+        xq[[ci]][is.na(x[[ci]])] <- "NA_real_"
       } else if(is.character(x[[ci]]) || is.factor(x[[ci]])) {
         xq[[ci]] <- qts(as.character(x[[ci]]))
+        xq[[ci]][is.na(x[[ci]])] <- "NA_character_"
       } else if(is.integer(x[[ci]])) {
         xq[[ci]] <- paste0(format(x[[ci]], scientific = FALSE), "L")
+        xq[[ci]][is.na(x[[ci]])] <- "NA_integer_"
       } else if(is.numeric(x[[ci]])) {
         xq[[ci]] <- formatC(x[[ci]],
                             digits = formatC_args$digits,
@@ -258,10 +261,14 @@ draw_frame <- function(x,
                             preserve.width =  formatC_args$preserve.width,
                             zero.print =  formatC_args$zero.print,
                             drop0trailing =  formatC_args$drop0trailing)
+        xq[[ci]][is.na(x[[ci]])] <- "NA_real_"
+      } else if(is.logical(x[[ci]])) {
+        xq[[ci]] <- as.character(x[[ci]])
+        xq[[ci]][is.na(x[[ci]])] <- "NA"
       } else {
         xq[[ci]] <- as.character(x[[ci]])
+        xq[[ci]][is.na(x[[ci]])] <- "NA"
       }
-      xq[[ci]][is.na(x[[ci]])] <- NA
     }
     xm <- as.matrix(xq)
     xm <- matrix(data = as.character(xm),
@@ -313,6 +320,8 @@ draw_frame <- function(x,
 #' (all other infix operators are aliases for ",").
 #' Names are treated as character types.
 #'
+#' qchar_frame() uses bquote() .() quasiquotation escaping notation.
+#'
 #' @param ... cell names, first infix operator denotes end of header row of column names.
 #' @return character data.frame
 #'
@@ -320,10 +329,11 @@ draw_frame <- function(x,
 #'
 #' @examples
 #'
+#' loss_name <- "loss"
 #' x <- qchar_frame(
-#'    measure,                      training, validation |
-#'    "minus binary cross entropy", loss,     val_loss   |
-#'    accuracy,                     acc,      val_acc    )
+#'    measure,                      training,     validation |
+#'    "minus binary cross entropy", .(loss_name), val_loss   |
+#'    accuracy,                     acc,          val_acc    )
 #' print(x)
 #' str(x)
 #' cat(draw_frame(x))
@@ -331,14 +341,17 @@ draw_frame <- function(x,
 #' qchar_frame(
 #'   x |
 #'   1 |
-#'   2 )
+#'   2 ) %.>% str(.)
 #'
 #' @export
 #'
 qchar_frame <- function(...) {
-  v <- as.list(substitute(list(...))[-1])
-  lv <- length(v)
+  # v <- as.list(substitute(list(...))[-1])
   env <- parent.frame()
+  v <- do.call(bquote, list(as.list(substitute(list(...))[-1]),
+                            where = env),
+               envir = env)
+  lv <- length(v)
   if(lv<1) {
     return(data.frame())
   }

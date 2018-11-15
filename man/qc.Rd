@@ -4,26 +4,37 @@
 \alias{qc}
 \title{Quoting version of c() array concatenate.}
 \usage{
-qc(...)
+qc(..., .wrapr_private_var_env = parent.frame())
 }
 \arguments{
 \item{...}{items to place into an array}
+
+\item{.wrapr_private_var_env}{environment to evaluate in}
 }
 \value{
 quoted array of character items
 }
 \description{
 The qc() function is intended to help quote user inputs.
-It is a convenience function allowing the user to elide
+}
+\details{
+qc() a convenience function allowing the user to elide
 excess quotation marks.  It quotes its arguments instead
 of evaluating them, except in the case of a nested
-call to qc() itself.  Please see the examples for
+call to qc() or c().  Please see the examples for
 typical uses both for named and un-named character vectors.
+
+qc() uses bquote() .() quasiquotation escaping notation.
 }
 \examples{
 
 a <- "x"
+
 qc(a) # returns the string "a" (not "x")
+
+qc(.(a)) # returns the string "x" (not "a")
+
+qc(.(a) := a) # returns c("x" = "a")
 
 qc("a") # return the string "a" (not "\\"a\\"")
 
@@ -31,11 +42,18 @@ qc(sin(x))  # returns the string "sin(x)"
 
 qc(a, qc(b, c)) # returns c("a", "b", "c")
 
+qc(a, c("b", "c")) # returns c("a", "b", "c")
+
 qc(x=a, qc(y=b, z=c)) # returns c(x="a", y="b", z="c")
 
 qc('x'='a', wrapr::qc('y'='b', 'z'='c')) # returns c(x="a", y="b", z="c")
 
+c(a = c(a="1", b="2")) # returns c(a.a = "1", a.b = "2")
+qc(a = c(a=1, b=2)) # returns c(a.a = "1", a.b = "2")
+qc(a := c(a=1, b=2)) # returns c(a.a = "1", a.b = "2")
+
+
 }
 \seealso{
-\code{\link{qe}}, \code{\link{qae}}
+\code{\link{qe}}, \code{\link{qae}}, \code{\link[base]{bquote}}
 }
