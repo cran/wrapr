@@ -61,12 +61,14 @@ apply_left <- function(pipe_left_arg,
                        left_arg_name,
                        pipe_string,
                        right_arg_name) {
+  force(pipe_environment)
   UseMethod("apply_left", pipe_left_arg)
 }
 
 # things we don't want to piple into
 forbidden_pipe_destination_names <- c("else",
                                       "return",
+                                      "stop", "warning",
                                       "in", "next", "break",
                                       "TRUE", "FALSE", "NULL", "Inf", "NaN",
                                       "NA", "NA_integer_", "NA_real_", "NA_complex_", "NA_character_",
@@ -111,7 +113,7 @@ apply_left_default <- function(pipe_left_arg,
   if(!is.language(pipe_right_arg)) {
     stop(paste("wrapr::apply_left.default does not allow piping into obvious concrete right-argument (clearly can't depend on left argument):\n",
                ifelse(is.null(left_arg_name), "", left_arg_name), paste(class(pipe_left_arg), collapse = ", "), "\n",
-               ifelse(is.null(right_arg_name), "", right_arg_name), paste(class(pipe_left_arg), collapse = ", ")),
+               ifelse(is.null(right_arg_name), "", right_arg_name), paste(class(pipe_right_arg), collapse = ", ")),
          call. = FALSE)
   }
   if(is.call(pipe_right_arg) && (is.name(pipe_right_arg[[1]]))) {
@@ -224,7 +226,7 @@ apply_right <- function(pipe_left_arg,
 #' Default apply_right implementation: S4 dispatch to apply_right_S4.
 #'
 #' @param pipe_left_arg left argument
-#' @param pipe_right_arg substitute(pipe_right_arg) argument
+#' @param pipe_right_arg pipe_right_arg argument
 #' @param pipe_environment environment to evaluate in
 #' @param left_arg_name name, if not NULL name of left argument.
 #' @param pipe_string character, name of pipe operator.
@@ -272,7 +274,7 @@ apply_right.default <- function(pipe_left_arg,
 #' Intended to be generic on first two arguments.
 #'
 #' @param pipe_left_arg left argument
-#' @param pipe_right_arg substitute(pipe_right_arg) argument
+#' @param pipe_right_arg pipe_right_arg argument
 #' @param pipe_environment environment to evaluate in
 #' @param left_arg_name name, if not NULL name of left argument.
 #' @param pipe_string character, name of pipe operator.
@@ -311,6 +313,7 @@ apply_right_S4 <- function(pipe_left_arg,
                            left_arg_name,
                            pipe_string,
                            right_arg_name) {
+  force(pipe_environment)
   # # go to default left S3 dispatch on apply_left()
   # apply_left(pipe_left_arg = pipe_left_arg,
   #            pipe_right_arg = pipe_right_arg,
@@ -320,7 +323,7 @@ apply_right_S4 <- function(pipe_left_arg,
   #            right_arg_name = right_arg_name)
   stop(paste("wrapr::apply_right_S4 default called with classes:\n",
              ifelse(is.null(left_arg_name), "", left_arg_name), paste(class(pipe_left_arg), collapse = ", "), "\n",
-             ifelse(is.null(right_arg_name), "", right_arg_name), paste(class(pipe_left_arg), collapse = ", "), "\n",
+             ifelse(is.null(right_arg_name), "", right_arg_name), paste(class(pipe_right_arg), collapse = ", "), "\n",
              " must have a more specific S4 method defined to dispatch\n"),
        call. = FALSE)
 }
@@ -351,6 +354,8 @@ pipe_impl <- function(pipe_left_arg,
                       pipe_right_arg,
                       pipe_environment,
                       pipe_string = NULL) {
+  # make sure environment is available
+  force(pipe_environment)
   # special case: parenthesis
   while(is.call(pipe_right_arg) &&
         (length(pipe_right_arg)==2) &&
@@ -358,8 +363,6 @@ pipe_impl <- function(pipe_left_arg,
         (as.character(pipe_right_arg[[1]])=="(")) {
     pipe_right_arg <- pipe_right_arg[[2]]
   }
-  # make sure environment is available
-  force(pipe_environment)
   # capture names
   left_arg_name <- NULL
   if(is.name(pipe_left_arg)) {
@@ -384,10 +387,14 @@ pipe_impl <- function(pipe_left_arg,
   is_function_decl <- is.call(pipe_right_arg) &&
     (length(as.character(pipe_right_arg[[1]]))==1) &&
     (as.character(pipe_right_arg[[1]])=="function")
+  # special-case .() on RHS
+  dot_paren <- is.call(pipe_right_arg) &&
+    (length(as.character(pipe_right_arg[[1]]))==1) &&
+    (as.character(pipe_right_arg[[1]])[[1]]==".")
   # check for right-apply situations
   if(is.function(pipe_right_arg) ||
      is_name || qualified_name ||
-     is_function_decl) {
+     is_function_decl || dot_paren) {
     if(is_name) {
       if(as.character(pipe_right_arg) %in% forbidden_pipe_destination_names) {
         stop(paste("to reduce surprising behavior wrapr::pipe does not allow direct piping into some names, such as",
@@ -397,12 +404,12 @@ pipe_impl <- function(pipe_left_arg,
                                   envir = pipe_environment,
                                   mode = "any",
                                   inherits = TRUE)
-    } else if(qualified_name) {
+    } else if(qualified_name || is_function_decl) {
       pipe_right_arg <- base::eval(pipe_right_arg,
                                    envir = pipe_environment,
                                    enclos = pipe_environment)
-    } else if(is_function_decl) {
-      pipe_right_arg <- eval(pipe_right_arg,
+    } else if(dot_paren) {
+      pipe_right_arg <- eval(pipe_right_arg[[2]],
                             envir = pipe_environment,
                             enclos = pipe_environment)
     }
@@ -510,6 +517,18 @@ NULL
 #' @describeIn dot_arrow alias for dot arrow
 #' @export
 `%>.%` <- function(pipe_left_arg, pipe_right_arg) {
+  pipe_left_arg <- substitute(pipe_left_arg)
+  pipe_right_arg <- substitute(pipe_right_arg)
+  pipe_environment <- parent.frame()
+  pipe_string <- as.character(sys.call()[[1]])
+  pipe_impl(pipe_left_arg, pipe_right_arg,
+            pipe_environment, pipe_string)
+}
+
+
+#' @describeIn dot_arrow alias for dot arrow
+#' @export
+`%.%` <- function(pipe_left_arg, pipe_right_arg) {
   pipe_left_arg <- substitute(pipe_left_arg)
   pipe_right_arg <- substitute(pipe_right_arg)
   pipe_environment <- parent.frame()

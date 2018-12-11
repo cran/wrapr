@@ -2,20 +2,20 @@
 % Please edit documentation in R/c.R
 \name{\%qc\%}
 \alias{\%qc\%}
-\title{Inline quoting concatinate.}
+\title{Inline quoting list/array concatenate.}
 \usage{
 e1 \%qc\% e2
 }
 \arguments{
 \item{e1}{first, or left argument.}
 
-\item{e2}{second, or gith argument.}
+\item{e2}{second, or right argument.}
 }
 \value{
 qc(e1, c2)
 }
 \description{
-Inline quoting concatinate.
+Inline quoting list/array concatenate.
 }
 \examples{
 

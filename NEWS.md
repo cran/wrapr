@@ -1,4 +1,14 @@
 
+# wrapr 1.8.0 2018-12-11
+
+ * Add generic unary functions.
+ * Add .() pipe escaping.
+ * Add clean lm() and glm() fitters.
+ * Add split_at_brace_pairs.
+ * Documentation fixes.
+ * Error msg fix.
+ * Add %+%, and %.%.
+ 
 # wrapr 1.7.0 2018-11-15
 
  * bquote enable qc() and other quoting methods.

@@ -1,9 +1,9 @@
 
 
-#' Inline concatinate.
+#' Inline list/array concatenate.
 #'
 #' @param e1 first, or left argument.
-#' @param e2 second, or gith argument.
+#' @param e2 second, or right argument.
 #' @return c(e1, c2)
 #'
 #' @examples
@@ -20,10 +20,10 @@
   c(e1, e2)
 }
 
-#' Inline quoting concatinate.
+#' Inline quoting list/array concatenate.
 #'
 #' @param e1 first, or left argument.
-#' @param e2 second, or gith argument.
+#' @param e2 second, or right argument.
 #' @return qc(e1, c2)
 #'
 #' @examples
