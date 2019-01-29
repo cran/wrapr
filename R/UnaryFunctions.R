@@ -210,7 +210,7 @@ as_fnlist <- function(items, env = parent.frame()) {
   }
   x <- new(
     "UnaryFnList",
-    items = list()
+     items = list()
   )
   for(itm in items) {
     x <- ApplyTo(itm, x, env = env)

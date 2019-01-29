@@ -1,4 +1,10 @@
 
+# wrapr 1.8.3 2019-01-29
+
+ * Add string strsplit_capture() and dotsubs().
+ * better bquote_function() and evalb() examples.
+ * Allow comparisions in mk_formula(), and general improvements.
+
 # wrapr 1.8.2 2019-01-04
 
  * Add paste(class(), collapse=" ").
@@ -17,7 +23,7 @@
  * Add split_at_brace_pairs.
  * Documentation fixes.
  * Error msg fix.
- * Add %+%, and %.%.
+ * Add %p%, and %.%.
  
 # wrapr 1.7.0 2018-11-15
 
