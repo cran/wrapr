@@ -345,7 +345,8 @@ draw_frame <- function(x,
 #' (all other infix operators are aliases for ",").
 #' Names are treated as character types.
 #'
-#' qchar_frame() uses bquote() .() quasiquotation escaping notation.
+#' qchar_frame() uses bquote() .() quasiquotation escaping notation.  Because of this using dot
+#' as a name in some places may fail if the dot looks like a function call.
 #'
 #' @param ... cell names, first infix operator denotes end of header row of column names.
 #' @return character data.frame
@@ -382,8 +383,8 @@ qchar_frame <- function(...) {
   }
   # inspect input
   cls <- vapply(v, class, character(1))
-  if(length(setdiff(cls, c("character", "call", "name")))>0) {
-    stop("wrapr::qchar_frame expect only strings, names, +, and commas")
+  if(length(setdiff(cls, c("call", "character", "name", "numeric", "integer", "logical", "factor")))>0) {
+    stop("wrapr::qchar_frame expects only strings, names, literals, operators, and commas")
   }
   if(sum(cls=="call") < 1) {
     # no rows case
