@@ -1,4 +1,9 @@
 
+# wrapr 1.8.9 2019-07-24
+
+ * More unit tests.
+ * Adjust license.
+
 # wrapr 1.8.8 2019-07-06
 
  * More work with mk_formula().
