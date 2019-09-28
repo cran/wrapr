@@ -7,12 +7,13 @@
 <meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <meta name="author" content="John Mount" />
 
-<meta name="date" content="2019-07-24" />
+<meta name="date" content="2019-09-28" />
 
 <title>bquote</title>
 
@@ -96,7 +97,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -303,7 +304,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">bquote</h1>
 <h4 class="author">John Mount</h4>
-<h4 class="date">2019-07-24</h4>
+<h4 class="date">2019-09-28</h4>
 
 
 
@@ -352,7 +353,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 ##     exprq &lt;- bquote(..., where = where)
 ##     eval(exprq, envir = where, enclos = where)
 ## }
-## &lt;bytecode: 0x7fa0f76900f0&gt;
+## &lt;bytecode: 0x7fef8fd0f430&gt;
 ## &lt;environment: namespace:wrapr&gt;</code></pre>
 <p>All <code>evalb()</code> does is: call <code>bquote()</code> as intended. A way to teach this is to just call <code>bqoute()</code> alone.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">bquote</span>(</a>
@@ -398,6 +399,9 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>When string-interpolation and quasi-quotation use the same notation we can teach them quickly as simple related concepts.</p>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
