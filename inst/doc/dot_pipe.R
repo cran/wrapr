@@ -13,3 +13,12 @@ cos(exp(sin(4)))
 
 5 %.>% base::sin(.)
 
+## ----peager--------------------------------------------------------------
+f <- function() { sin }
+
+# returns f() ignoring dot, not what we want
+5 %.>% f()
+
+# evaluates f() early then evaluates result with .-substitution rules
+5 %.>% .(f())
+
