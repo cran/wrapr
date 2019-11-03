@@ -102,6 +102,13 @@ early_tries <- function(nm, vl, values) {
 #' @export
 `:=.list` <- named_map_builder
 
+#' @export
+`:=.factor` <- named_map_builder
+
+#' @export
+`:=.logical` <- named_map_builder
+
+
 
 
 
@@ -128,6 +135,11 @@ early_tries <- function(nm, vl, values) {
 #' @export
 `%:=%.list` <- named_map_builder
 
+#' @export
+`%:=%.factor` <- named_map_builder
+
+#' @export
+`%:=%.logical` <- named_map_builder
 
 
 
