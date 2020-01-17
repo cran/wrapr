@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -13,7 +12,7 @@
 
 <meta name="author" content="John Mount" />
 
-<meta name="date" content="2019-11-03" />
+<meta name="date" content="2020-01-16" />
 
 <title>bquote</title>
 
@@ -304,7 +303,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">bquote</h1>
 <h4 class="author">John Mount</h4>
-<h4 class="date">2019-11-03</h4>
+<h4 class="date">2020-01-16</h4>
 
 
 
@@ -353,15 +352,17 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 ##     exprq &lt;- bquote(..., where = where)
 ##     eval(exprq, envir = where, enclos = where)
 ## }
-## &lt;bytecode: 0x7f98ae964c68&gt;
+## &lt;bytecode: 0x7fbc43421d00&gt;
 ## &lt;environment: namespace:wrapr&gt;</code></pre>
 <p>All <code>evalb()</code> does is: call <code>bquote()</code> as intended. A way to teach this is to just call <code>bqoute()</code> alone.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">bquote</span>(</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">  </a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="kw">plot</span>(<span class="dt">x =</span> .(variable), </a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">       <span class="dt">y =</span> <span class="kw">sin</span>(.(variable)))</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">  </a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">  )</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="cf">if</span>(<span class="kw">requireNamespace</span>(<span class="st">&quot;graphics&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) {</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">bquote</span>(</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">  </a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="kw">plot</span>(<span class="dt">x =</span> .(variable), </a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">       <span class="dt">y =</span> <span class="kw">sin</span>(.(variable)))</a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">  </a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">  )</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">}</a></code></pre></div>
 <pre><code>## plot(x = angle, y = sin(angle))</code></pre>
 <p>And we see the un-executed code with the substitutions performed.</p>
 <p>There are many <code>R</code> quasi-quotation systems including:</p>

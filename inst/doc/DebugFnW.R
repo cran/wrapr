@@ -1,4 +1,4 @@
-## ----setup---------------------------------------------------------------
+## ----setup--------------------------------------------------------------------
 # load package
 library("wrapr")
 
@@ -6,7 +6,7 @@ library("wrapr")
 f <- function(i) { (1:10)[[i]] }
 
 
-## ----unwrapped-----------------------------------------------------------
+## ----unwrapped----------------------------------------------------------------
 
 inputs = c(4,5,2,9,0,8)
 
@@ -16,11 +16,11 @@ tryCatch(
   },
   error = function(e) { print(e) })
 
-## ----writeBackVersion2---------------------------------------------------
+## ----writeBackVersion2--------------------------------------------------------
 # wrap function with writeBack
 df <- DebugFnW(as.name('lastError'), f)
 
-## ----writeBackVersion3---------------------------------------------------
+## ----writeBackVersion3--------------------------------------------------------
 # capture error (Note: tryCatch not needed for user code!)
 tryCatch(
   for(x in inputs) {
@@ -28,12 +28,12 @@ tryCatch(
   },
   error = function(e) { print(e) })
 
-## ----writeBackVersion4---------------------------------------------------
+## ----writeBackVersion4--------------------------------------------------------
 # examine error
 str(lastError)
 lastError$args
 
-## ----writeBackVersion5---------------------------------------------------
+## ----writeBackVersion5--------------------------------------------------------
 # redo call, perhaps debugging
 tryCatch(
   do.call(lastError$fn_name, lastError$args),
@@ -41,7 +41,7 @@ tryCatch(
 # clean up
 rm(list='lastError')
 
-## ----FileVersion, eval=FALSE---------------------------------------------
+## ----FileVersion, eval=FALSE--------------------------------------------------
 #  saveDest <- paste0(tempfile('debug'),'.RDS')
 #  # wrap function with saveDeest
 #  df <- DebugFnW(saveDest,f)
@@ -52,7 +52,7 @@ rm(list='lastError')
 #    },
 #    error = function(e) { print(e) })
 
-## ----FileVersion2, eval=FALSE--------------------------------------------
+## ----FileVersion2, eval=FALSE-------------------------------------------------
 #  # load data
 #  lastError <- readRDS(saveDest)
 #  # examine error

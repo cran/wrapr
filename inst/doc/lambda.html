@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -13,7 +12,7 @@
 
 <meta name="author" content="John Mount" />
 
-<meta name="date" content="2019-11-03" />
+<meta name="date" content="2020-01-16" />
 
 <title>lambda Function Builder</title>
 
@@ -304,7 +303,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">lambda Function Builder</h1>
 <h4 class="author">John Mount</h4>
-<h4 class="date">2019-11-03</h4>
+<h4 class="date">2020-01-16</h4>
 
 
 
@@ -313,11 +312,10 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(<span class="st">&quot;wrapr&quot;</span>)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">wrapr<span class="op">::</span><span class="kw">defineLambda</span>(<span class="dt">name =</span> <span class="st">&quot;l&quot;</span>)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">ls</span>()</a></code></pre></div>
-<pre><code>##  [1] &quot;LEFT_NAME&quot;    &quot;OTHER_SYMBOL&quot; &quot;X&quot;            &quot;Y&quot;           
-##  [5] &quot;angle&quot;        &quot;d&quot;            &quot;d2&quot;           &quot;df&quot;          
-##  [9] &quot;exp_step&quot;     &quot;f&quot;            &quot;f5&quot;           &quot;inputs&quot;      
-## [13] &quot;l&quot;            &quot;model&quot;        &quot;model_f&quot;      &quot;model_o&quot;     
-## [17] &quot;model_p&quot;      &quot;plotb&quot;        &quot;pred_step&quot;    &quot;s4&quot;          
+<pre><code>##  [1] &quot;LEFT_NAME&quot;    &quot;OTHER_SYMBOL&quot; &quot;X&quot;            &quot;Y&quot;            &quot;angle&quot;       
+##  [6] &quot;d&quot;            &quot;d2&quot;           &quot;df&quot;           &quot;exp_step&quot;     &quot;f&quot;           
+## [11] &quot;f5&quot;           &quot;inputs&quot;       &quot;l&quot;            &quot;model&quot;        &quot;model_f&quot;     
+## [16] &quot;model_o&quot;      &quot;model_p&quot;      &quot;plotb&quot;        &quot;pred_step&quot;    &quot;s4&quot;          
 ## [21] &quot;s5&quot;           &quot;variable&quot;     &quot;x&quot;</code></pre>
 <p>Note: throughout this document we are using the letter “<code>l</code>” as a stand-in for the Greek letter lambda, as this non-ASCII character can cause formatting problems in some situations.</p>
 <p>You can use <code>l()</code> to define functions. The syntax is: <code>l(arg [, arg]*, body [, env=env])</code>. That is we write a <code>l()</code>-call (which you can do by cutting and pasting) and list the desired function arguments and then the function body. For example the function that squares numbers is:</p>
