@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Nina Zumel and John Mount" />
+
+<meta name="date" content="2020-01-26" />
+
+<title>Multiple Assignment with unpack</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Multiple Assignment with unpack</h1>
+<h4 class="author">Nina Zumel and John Mount</h4>
+<h4 class="date">2020-01-26</h4>
+
+
+
+<p>In <code>R</code> there are many functions that return named lists or other structures keyed by names. Often, you want to unpack the elements of such a list into separate variables, for ease of use. One example is the use of <code>split()</code> to partition a larger data frame into a named list of smaller data frames, each corresponding to some grouping.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(wrapr)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co"># example data</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">9</span>,</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">  <span class="dt">group =</span> <span class="kw">c</span>(<span class="st">'train'</span>, <span class="st">'calibrate'</span>, <span class="st">'test'</span>),</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">knitr<span class="op">::</span><span class="kw">kable</span>(d)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">train</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">test</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="left">train</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="left">test</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="left">train</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="odd">
+<td align="right">9</td>
+<td align="left">test</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># split the d by group</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">(parts &lt;-<span class="st"> </span><span class="kw">split</span>(d, d<span class="op">$</span>group))</a></code></pre></div>
+<pre><code>## $calibrate
+##   x     group
+## 2 2 calibrate
+## 5 5 calibrate
+## 8 8 calibrate
+## 
+## $test
+##   x group
+## 3 3  test
+## 6 6  test
+## 9 9  test
+## 
+## $train
+##   x group
+## 1 1 train
+## 4 4 train
+## 7 7 train</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">train_data &lt;-<span class="st"> </span>parts<span class="op">$</span>train</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">calibrate_data &lt;-<span class="st"> </span>parts<span class="op">$</span>calibrate</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">test_data &lt;-<span class="st"> </span>parts<span class="op">$</span>test</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">knitr<span class="op">::</span><span class="kw">kable</span>(train_data)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td align="right">1</td>
+<td align="left">train</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td align="right">4</td>
+<td align="left">train</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td align="right">7</td>
+<td align="left">train</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(calibrate_data)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td align="right">2</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td align="right">5</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td align="right">8</td>
+<td align="left">calibrate</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(test_data)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3</td>
+<td align="right">3</td>
+<td align="left">test</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td align="right">6</td>
+<td align="left">test</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td align="right">9</td>
+<td align="left">test</td>
+</tr>
+</tbody>
+</table>
+<p>A multiple assignment notation allows us to assign all the smaller data frames to variables in one step, and avoid leaving a possibly large temporary variable such as <code>parts</code> in our environment. One such notation is <code>unpack()</code>.</p>
+<div id="basic-unpack-example" class="section level2">
+<h2>Basic <code>unpack()</code> example</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co"># clear out the earlier results</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">rm</span>(<span class="dt">list =</span> <span class="kw">c</span>(<span class="st">'train_data'</span>, <span class="st">'calibrate_data'</span>, <span class="st">'test_data'</span>, <span class="st">'parts'</span>))</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co"># split d and unpack the smaller data frames into separate variables</span></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="kw">unpack</span>(<span class="kw">split</span>(d, d<span class="op">$</span>group),</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">       <span class="dt">train_data =</span> train,</a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">       <span class="dt">test_data =</span> test,</a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">       <span class="dt">calibrate_data =</span> calibrate)</a>
+<a class="sourceLine" id="cb7-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10">knitr<span class="op">::</span><span class="kw">kable</span>(train_data)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td align="right">1</td>
+<td align="left">train</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td align="right">4</td>
+<td align="left">train</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td align="right">7</td>
+<td align="left">train</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(calibrate_data)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td align="right">2</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td align="right">5</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td align="right">8</td>
+<td align="left">calibrate</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(test_data)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3</td>
+<td align="right">3</td>
+<td align="left">test</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td align="right">6</td>
+<td align="left">test</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td align="right">9</td>
+<td align="left">test</td>
+</tr>
+</tbody>
+</table>
+<p>You can also use <code>unpack</code> with an assignment notation similar to the notation used with the<br />
+<a href="https://CRAN.R-project.org/package=zeallot"><code>zeallot::%&lt;-%</code></a> pipe:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="co"># split d and unpack the smaller data frames into separate variables</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">unpack[traind =<span class="st"> </span>train, testd =<span class="st"> </span>test, cald =<span class="st"> </span>calibrate] &lt;-<span class="st"> </span><span class="kw">split</span>(d, d<span class="op">$</span>group)</a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4">knitr<span class="op">::</span><span class="kw">kable</span>(traind)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td align="right">1</td>
+<td align="left">train</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td align="right">4</td>
+<td align="left">train</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td align="right">7</td>
+<td align="left">train</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(cald)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td align="right">2</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td align="right">5</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td align="right">8</td>
+<td align="left">calibrate</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(testd)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3</td>
+<td align="right">3</td>
+<td align="left">test</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td align="right">6</td>
+<td align="left">test</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td align="right">9</td>
+<td align="left">test</td>
+</tr>
+</tbody>
+</table>
+<p>Note: the <code>&lt;-</code> array assignment has the minor side-effect of writing a value for <code>unpack</code> into the working environment. This object is small, and the operation is blocked if there is an existing <code>unpack</code> object that is not such a side effect in your workspace (so it will not overwrite something else).</p>
+<div id="reusing-the-list-names-as-variables" class="section level3">
+<h3>Reusing the list names as variables</h3>
+<p>If you are willing to assign the elements of the list into variables with the same names, you can just use the names:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">unpack</span>(<span class="kw">split</span>(d, d<span class="op">$</span>group), train, test, calibrate)</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3">knitr<span class="op">::</span><span class="kw">kable</span>(train)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td align="right">1</td>
+<td align="left">train</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td align="right">4</td>
+<td align="left">train</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td align="right">7</td>
+<td align="left">train</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(calibrate)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td align="right">2</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td align="right">5</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td align="right">8</td>
+<td align="left">calibrate</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(test)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3</td>
+<td align="right">3</td>
+<td align="left">test</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td align="right">6</td>
+<td align="left">test</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td align="right">9</td>
+<td align="left">test</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co"># try the unpack[]&lt;- notation</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="kw">rm</span>(<span class="dt">list =</span> <span class="kw">c</span>(<span class="st">'train'</span>, <span class="st">'test'</span>, <span class="st">'calibrate'</span>))</a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">unpack[test, train, calibrate] &lt;-<span class="st"> </span><span class="kw">split</span>(d, d<span class="op">$</span>group)</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7">knitr<span class="op">::</span><span class="kw">kable</span>(train)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td align="right">1</td>
+<td align="left">train</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td align="right">4</td>
+<td align="left">train</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td align="right">7</td>
+<td align="left">train</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(calibrate)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td align="right">2</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td align="right">5</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td align="right">8</td>
+<td align="left">calibrate</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(test)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3</td>
+<td align="right">3</td>
+<td align="left">test</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td align="right">6</td>
+<td align="left">test</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td align="right">9</td>
+<td align="left">test</td>
+</tr>
+</tbody>
+</table>
+<p>Mixed notation is allowed:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw">rm</span>(<span class="dt">list =</span> <span class="kw">c</span>(<span class="st">'train'</span>, <span class="st">'test'</span>, <span class="st">'calibrate'</span>))</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="kw">unpack</span>(<span class="kw">split</span>(d, d<span class="op">$</span>group), train, <span class="dt">holdout=</span>test, calibrate)</a>
+<a class="sourceLine" id="cb19-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb19-4" data-line-number="4">knitr<span class="op">::</span><span class="kw">kable</span>(train)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td align="right">1</td>
+<td align="left">train</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td align="right">4</td>
+<td align="left">train</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td align="right">7</td>
+<td align="left">train</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(calibrate)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td align="right">2</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td align="right">5</td>
+<td align="left">calibrate</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td align="right">8</td>
+<td align="left">calibrate</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(holdout)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3</td>
+<td align="right">3</td>
+<td align="left">test</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td align="right">6</td>
+<td align="left">test</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td align="right">9</td>
+<td align="left">test</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="unpacking-only-parts-of-a-list" class="section level3">
+<h3>Unpacking only parts of a list</h3>
+<p>You can also unpack only a subset of the list’s elements:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw">rm</span>(<span class="dt">list =</span> <span class="kw">c</span>(<span class="st">'train'</span>, <span class="st">'holdout'</span>, <span class="st">'calibrate'</span>))</a>
+<a class="sourceLine" id="cb22-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="kw">unpack</span>(<span class="kw">split</span>(d, d<span class="op">$</span>group), train, test)</a>
+<a class="sourceLine" id="cb22-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb22-5" data-line-number="5">knitr<span class="op">::</span><span class="kw">kable</span>(train)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td align="right">1</td>
+<td align="left">train</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td align="right">4</td>
+<td align="left">train</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td align="right">7</td>
+<td align="left">train</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">kable</span>(test)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">x</th>
+<th align="left">group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>3</td>
+<td align="right">3</td>
+<td align="left">test</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td align="right">6</td>
+<td align="left">test</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td align="right">9</td>
+<td align="left">test</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="co"># we didn't unpack the calibrate set</span></a>
+<a class="sourceLine" id="cb24-2" data-line-number="2">calibrate</a></code></pre></div>
+<pre><code>## Error in eval(expr, envir, enclos): object 'calibrate' not found</code></pre>
+</div>
+<div id="unpack-checks-for-unknown-elements" class="section level3">
+<h3><code>unpack</code> checks for unknown elements</h3>
+<p>If <code>unpack</code> is asked to unpack an element it doesn’t recognize, it throws an error. In this case, none of the elements are unpacked, as <code>unpack</code> is deliberately an atomic operation.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="co"># the split call will not return an element called &quot;holdout&quot;</span></a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"><span class="kw">unpack</span>(<span class="kw">split</span>(d, d<span class="op">$</span>group), <span class="dt">training =</span> train, <span class="dt">testing =</span> holdout)</a></code></pre></div>
+<pre><code>## Error in write_values_into_env(unpack_environment = unpack_environment, : wrapr::unpack all source names must be in value, missing: 'holdout'.</code></pre>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="co"># train was not unpacked either</span></a>
+<a class="sourceLine" id="cb28-2" data-line-number="2">training</a></code></pre></div>
+<pre><code>## Error in eval(expr, envir, enclos): object 'training' not found</code></pre>
+</div>
+</div>
+<div id="other-multiple-assignment-packages" class="section level2">
+<h2>Other multiple assignment packages</h2>
+<div id="zeallot" class="section level3">
+<h3><code>zeallot</code></h3>
+<p>The <a href="https://CRAN.R-project.org/package=zeallot"><code>zeallot</code></a> package already supplies excellent positional or ordered unpacking.</p>
+<p>The primary difference between <code>zeallot</code>’s <a href="https://CRAN.R-project.org/package=zeallot"><code>%&lt;-%</code></a> pipe and <code>unpack</code> is that <code>%&lt;-%</code> is a <em>positional</em> unpacker: you must unpack the list based on the <em>order</em> of the elements in the list. This style may be more appropriate in the Python world where many functions return un-named tuples of results.</p>
+<p><code>unpack</code> is a <em>named</em> unpacker: assignments are based on the <em>names</em> of elements in the list, and the assignments can be in any order. We feel this is more appropriate for R, as R has not emphasized positional unpacking; R functions tend to return named lists or named structures. For named lists or named structures it may not be safe to rely on value positions.</p>
+<p>For unpacking named lists, we recommend <code>unpack</code>. For unpacking unnamed lists, use <code>%&lt;-%</code>.</p>
+</div>
+<div id="vadr" class="section level3">
+<h3><code>vadr</code></h3>
+<p><a href="https://github.com/crowding/vadr/blob/master/R/bind.R"><code>vadr::bind</code></a> supplies named unpacking, but appears to use a “<code>SOURCE = DESTINATION</code>” notation. That is the reverse of a “<code>DESTINATION = SOURCE</code>” which is how both R assignments and argument binding are already written.</p>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

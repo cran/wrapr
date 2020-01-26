@@ -10,11 +10,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta name="author" content="John Mount" />
+<meta name="author" content="John Mount, Win-Vector LLC" />
 
 <meta name="date" content="2020-01-26" />
 
-<title>Quoting Concatinate</title>
+<title>wrapr Eager Evaluation</title>
 
 
 
@@ -301,67 +301,47 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 
-<h1 class="title toc-ignore">Quoting Concatinate</h1>
-<h4 class="author">John Mount</h4>
+<h1 class="title toc-ignore">wrapr Eager Evaluation</h1>
+<h4 class="author">John Mount, Win-Vector LLC</h4>
 <h4 class="date">2020-01-26</h4>
 
 
 
-<p>In <a href="https://www.r-project.org"><code>R</code></a> data analysis code-capturing interfaces (or non-standard-evaluation/NSE interfaces are considered a fun convenience. These allow users to type column names in directly when working. However in functions and packages there can be a large interface price or code safety risk to pay for supplying the user the minor convenience of eliding a few quotation marks.</p>
-<p>Our package <a href="https://CRAN.R-project.org/package=wrapr"><code>wrapr</code></a> has the sensible design principle: NSE can be convenient to the user, but we are going to isolate it to a few methods (for safe and simple code). Users then pass the objects that those methods create as <em>values</em> to other methods. Computation is meant to be over values, so this is a good trade-off.</p>
-<p>The primary place code capturing shows up in our <code>wrapr</code> <code>R</code> package is in the <a href="https://winvector.github.io/wrapr/reference/qc.html"><code>qc()</code></a> and <a href="https://winvector.github.io/wrapr/reference/qchar_frame.html"><code>qchar_frame()</code></a> methods.</p>
-<p><code>qc()</code> stands for “quoting concatenate” it is much like <code>R</code>’s <code>c()</code> (combine), but it quotes its arguments before concatenating vectors or lists.</p>
-<p>It lets you replace this:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">c</span>(<span class="st">&quot;Petal.Width&quot;</span>, <span class="st">&quot;Petal.Length&quot;</span>)</a></code></pre></div>
-<pre><code>## [1] &quot;Petal.Width&quot;  &quot;Petal.Length&quot;</code></pre>
-<p>with this:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">library</span>(<span class="st">&quot;wrapr&quot;</span>)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">   </a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw">qc</span>(Petal.Width, Petal.Length)</a></code></pre></div>
-<pre><code>## [1] &quot;Petal.Width&quot;  &quot;Petal.Length&quot;</code></pre>
-<p>This, in turn, lets you replace this:</p>
-<pre><code>library(&quot;dplyr&quot;)
-
-iris %&gt;%
-  select(., Petal.Width, Petal.Length) %&gt;%
-  head(.)</code></pre>
-<p>with this:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">iris[, <span class="kw">qc</span>(Petal.Width, Petal.Length)] <span class="op">%.&gt;%</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="st">  </span><span class="kw">head</span>(.)</a></code></pre></div>
-<pre><code>##   Petal.Width Petal.Length
-## 1         0.2          1.4
-## 2         0.2          1.4
-## 3         0.2          1.3
-## 4         0.2          1.5
-## 5         0.2          1.4
-## 6         0.4          1.7</code></pre>
-<p>We still skipped the quotes, and the NSE stuff is safely isolated from the rest of the system.</p>
-<p><code>wrapr</code> now incorporates <code>bquote()</code> based quasiquotation in a few of its interfaces.</p>
-<p>Quasiquotation was introduced into R by Thomas Lumley in 2003, and allows users to signal they want to turn off quotation for portions of their code. The user indicates they do not wish a portion of their code to be quoted (but instead want it evaluated for its value) by surrounding that portion with the function-notation “<code>.()</code>”.</p>
-<p>An example of this is given here.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">OTHER_SYMBOL &lt;-<span class="st"> &quot;Petal.Length&quot;</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">  </a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw">qc</span>(Petal.Width, OTHER_SYMBOL)</a></code></pre></div>
-<pre><code>## [1] &quot;Petal.Width&quot;  &quot;OTHER_SYMBOL&quot;</code></pre>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">qc</span>(Petal.Width, .(OTHER_SYMBOL))</a></code></pre></div>
-<pre><code>## [1] &quot;Petal.Width&quot;  &quot;Petal.Length&quot;</code></pre>
-<p>This should be familiar to <code>data.table</code> users, as <code>data.table</code> has supported related notations for quite some time.</p>
-<p>Also, <code>qc()</code> is designed to have a simple “mutually recursive” relationship with <code>c()</code> (i.e. they call each other when they see one another). This means <code>c()</code> is also a quasiquotation escape-notation for <code>qc()</code>:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">qc</span>(Petal.Width, <span class="kw">c</span>(OTHER_SYMBOL))</a></code></pre></div>
-<pre><code>## [1] &quot;Petal.Width&quot;  &quot;Petal.Length&quot;</code></pre>
-<p>This escape notation arises as a natural consequence of a design of <code>qc()</code> that calls <code>c()</code> instead of quoting it (i.e. delegates <code>c()</code>-expressions to <code>c()</code>). The <code>bquote()-.()</code> should be the preferred notation for regularity, and to match any other <code>bquote()</code> quasiquotation interface (such as <code>qchar_frame()</code> or <a href="http://www.win-vector.com/blog/2018/10/quasiquotation-in-r-via-bquote/">even a variation of <code>dplyr</code></a>).</p>
-<p><code>qc()</code> also takes some trouble to work with named vectors:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">qc</span>(<span class="dt">a =</span> b)</a></code></pre></div>
-<pre><code>##   a 
-## &quot;b&quot;</code></pre>
-<p>And we can even re-map left-hand sizes of (or names) if we use the alternate “<code>:=</code>” assignment notation.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">LEFT_NAME =<span class="st"> &quot;a&quot;</span></a>
-<a class="sourceLine" id="cb16-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="kw">qc</span>(.(LEFT_NAME) <span class="op">:</span><span class="er">=</span><span class="st"> </span>b)</a></code></pre></div>
-<pre><code>##   a 
-## &quot;b&quot;</code></pre>
-<p>Notice syntactically <code>qc()</code> fills a general niche much like the specific function <code>ggplot2::aes()</code> fits in the <code>ggplot2</code> package.</p>
-<p>The <code>qc()</code> notation is very powerful and clearly indicates where which quoting rules are in effect when. We strongly suggest users look to it for code-capturing and package developers recommend it to their users.</p>
+<p><a href="https://github.com/WinVector/wrapr"><code>wrapr</code></a> dot arrow piping is designed to emphasize a <code>a %.&gt;% b</code> “is nearly” <code>{. &lt;- a; b}</code> semantics. In many cases this makes a piped expression of the form <code>a %.&gt;% b(.)</code> look very much like <code>b(a)</code>. This leads to the observation that “wrapr explicit dot notation” appears to need one more dot than the common “<a href="https://CRAN.R-project.org/package=magrittr"><code>magrittr</code></a> dot is a new implicit first argument notation.”</p>
+<p>There are some special rules around things like names. For example <code>5 %.&gt;% sin</code> is <em>not</em> valued as <code>sin</code>, which would be the strict interpretation of <code>{. &lt;- 5; sin}</code>. Instead it is expanded to something closer <code>{. &lt;- 5; sin(.)}</code>, which intentionally looks very much like <code>sin(5)</code>. In more complicated cases the user can signal they wish for an eager evaluation of this style by writing on outer <code>.()</code> container.</p>
+<p>And <code>wrapr</code> now also exposes an “eager” annotation such that function evaluations or array indexing operations so-annotated are interpreted as <code>a %.&gt;% f(...)</code> is interpreted roughly as <code>{. &lt;- a; _f &lt;- eval(f(...)); _f(.)}</code>, where <code>_f</code> is a notional temporary variable (not visible or produces as a side-effect). This effect is used in <code>wrapr</code>’s “pipe to array” variation of the <code>unpack</code> notation (example <a href="http://www.win-vector.com/blog/2020/01/using-unpack-to-manage-your-r-environment/">here</a>).</p>
+<p>This eager effect can be gotten by setting the appropriate attribute as we see below.</p>
+<p>For array notation:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(wrapr)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">lst &lt;-<span class="st"> </span><span class="kw">list</span>(sin)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># without the attribute, the function is returned</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="dv">4</span> <span class="op">%.&gt;%</span><span class="st"> </span>lst[[<span class="dv">1</span>]]</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt; function (x)  .Primitive(&quot;sin&quot;)</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># an outer .() signals for eager eval from the pipeline</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="dv">4</span> <span class="op">%.&gt;%</span><span class="st"> </span>.(lst[[<span class="dv">1</span>]])</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; [1] -0.7568025</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># with the attribute, the array is always de-referenced</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co"># before the pipe execution allowing the function</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co"># to be evaluated using the piped-in value.</span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="kw">attr</span>(lst, <span class="st">'dotpipe_eager_eval_bracket'</span>) &lt;-<span class="st"> </span><span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="dv">4</span> <span class="op">%.&gt;%</span><span class="st"> </span>lst[[<span class="dv">1</span>]]</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt; [1] -0.7568025</span></a></code></pre></div>
+<p>For functions:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># without the attribute the result is sin</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">f &lt;-<span class="st"> </span><span class="cf">function</span>(...) { sin }</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="dv">4</span> <span class="op">%.&gt;%</span><span class="st"> </span><span class="kw">f</span>()</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt; function (x)  .Primitive(&quot;sin&quot;)</span></a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># an outer .() signals for eager eval from the pipeline</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="dv">4</span> <span class="op">%.&gt;%</span><span class="st"> </span>.(<span class="kw">f</span>())</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co">#&gt; [1] -0.7568025</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co"># with the attribute the result is sin(4)</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">attr</span>(f, <span class="st">'dotpipe_eager_eval_function'</span>) &lt;-<span class="st"> </span><span class="ot">TRUE</span></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="dv">4</span> <span class="op">%.&gt;%</span><span class="st"> </span><span class="kw">f</span>()</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt; [1] -0.7568025</span></a></code></pre></div>
+<p>Essentially objects with this attribute have an implicit <code>.()</code> “eager eval” on them.</p>
 
 
 
