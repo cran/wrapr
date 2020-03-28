@@ -17,10 +17,9 @@ name list of values
 \description{
 bquote_call_args is a helper to allow the user to write functions with bquote-enabled argument substitution.
 Uses convetion that := is considered a alias for =.
-}
-\details{
-Note: eagerly evalutes argument and writes them into the function's
-executing environment.
+Re-writes call args to evaluate \code{expr} with \code{bquote} \code{.()} substitution.
+Including \code{.(-x)} promoting \code{x}'s value from character to a name,
+which is called "quote negation" (hence the minus-sign).
 }
 \examples{
 
@@ -29,10 +28,6 @@ f <- function(q, ...) {
   # match.call() best called in function context.
   captured_call <- match.call()
   captured_args <- bquote_call_args(captured_call, env)
-  for(nmi in setdiff(ls(),
-                     c("captured_call", "captured_args", "env"))) {
-    print(paste(nmi, get(nmi)))
-  }
   captured_args
 }
 
@@ -40,13 +35,15 @@ z <- "x"
 y <- 5
 qv <- 3
 
-# equivilent to f(3, x = 5)
-args <- f(q = .(qv), .(z) := .(y))
+# equivalent to f(3, x = 5)
+f(.(qv), .(z) := .(y))
 
-print(args)
+# equivalent to f(q = 7)
+qname <- 'q'
+f(.(qname) := 7)
+
 
 }
 \seealso{
 \code{\link{bquote_function}}
 }
-\keyword{internal}

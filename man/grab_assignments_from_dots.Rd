@@ -4,9 +4,17 @@
 \alias{grab_assignments_from_dots}
 \title{Re-write captured \code{...} arguments as assignments.}
 \usage{
-grab_assignments_from_dots(captured_dots)
+grab_assignments_from_dots(
+  captured_args,
+  unpack_environment = parent.frame(),
+  allow_dot_on_left = FALSE
+)
 }
 \arguments{
+\item{unpack_environment}{environment to look in}
+
+\item{allow_dot_on_left}{logical if TRUE allow forms like \code{.(a) = a} and \code{.(a)}.}
+
 \item{captured_dots}{captured \code{...}.}
 }
 \value{
@@ -14,17 +22,14 @@ named character vector describing the desired mapping.
 }
 \description{
 Re-write captured \code{...} arguments as a \code{c(DESTINATION = TARGET)} character vector.
-Suggested capture code is: \code{as.list(do.call(bquote, list(substitute(list(...)))))[-1]}
+Suggested capture code is: \code{substitute(list(...))}. Allows \code{bquote} \code{.()} substitution.
 }
 \examples{
 
 f <- function(...) {
   unpack_environment <- parent.frame(n = 1)
-  captured_dots <- as.list(do.call(bquote,
-                                   list(substitute(list(...)),
-                                        where = unpack_environment),
-                                   envir = unpack_environment))[-1]
-  grab_assignments_from_dots(captured_dots)
+  orig_args <- substitute(list(...))
+  grab_assignments_from_dots(orig_args, unpack_environment)
 }
 f(a, c = d, e := f, g <- h, i -> j)
 # should equal c('a', 'c' = 'd', 'e' = 'f', 'g' = 'h', 'j' = 'i')

@@ -70,12 +70,29 @@ knitr::kable(calibrate_data)
 knitr::kable(test_data)
 ```
 
-The semantics of `[]<-` imply that an object named "`to`" is left in our workspace as a side effect.  However, this object is small and if there is already an object name `to` in the workspace that is not of class `Unpacker` the unpacking is aborted prior to overwriting anything.  The unpacker two modes: `unpack` (a function that needs a dot in pipes) and `to` (an eager function factory that does not require a dot in pipes).  Also the side-effect can be avoided by using alternate non-array update notations.
+The semantics of `[]<-` imply that an object named "`to`" is left in our workspace as a side effect.  However, this object is small and if there is already an object name `to` in the workspace that is not of class `Unpacker` the unpacking is aborted prior to overwriting anything.  The unpacker two modes: `unpack` (a function that needs a dot in pipes) and `to` (an eager function factory that does not require a dot in pipes).  The side-effect can be avoided by using `:=` for assigment.
+
+```{r}
+rm(list = c('train_data', 'calibrate_data', 'test_data', 'to'))
+
+to[
+  train_data <- train,
+  calibrate_data <- calibrate,
+  test_data <- test
+  ] := split(d, d$group)
+
+ls()
+```
+
+
+
+
+Also the side-effect can be avoided by using alternate non-array update notations.
 
 We will demonstrate a few of these.  First is pipe to array notation.
 
 ```{r}
-rm(list = c('train_data', 'calibrate_data', 'test_data', 'to'))
+rm(list = c('train_data', 'calibrate_data', 'test_data'))
 ```
 
 ```{r}
@@ -214,7 +231,7 @@ ls()
 ```
 
 
-And we can use a name alone as shorthand for `name <- name` (i.e. unpacking to the same name as in the incoming object).
+We can use a name alone as shorthand for `name <- name` (i.e. unpacking to the same name as in the incoming object).
 
 
 ```{r}
@@ -231,6 +248,26 @@ split(d, d$group) %.>%
 ls()
 ```
 
+We can also use `bquote` `.()` notation to use variables to specify where data is coming from.
+
+
+```{r}
+rm(list = c('train', 'test'))
+```
+
+```{r}
+train_source <- 'train'
+
+split(d, d$group) %.>%
+  to[
+     train_result = .(train_source),
+     test
+     ]
+
+ls()
+```
+
+
 In all cases the user explicitly documents the intended data sources and data destinations at the place of assignment.  This meas a later reader of the source code can see what the operation does, without having to know values of additional variables.
 
 
@@ -246,6 +283,9 @@ The <a href="https://CRAN.R-project.org/package=zeallot"><code>zeallot::%&lt;-%<
 <li><code>base::with()</code>.  <code>unpack(list(a = 1, b = 2), x &lt;- a, y &lt;- b)
 </code> works a lot like <code>
 with(list(a = 1, b = 2), { x &lt;&lt;- a; y &lt;&lt;-b })</code>.
+</li>
+<li>
+<a href="https://CRAN.R-project.org/package=tidytidbits"><code>tidytidbits</code></a> supplies positional unpacking with a <code>%=%</code> notation.
 </li>
 <li><a href="https://winvector.github.io/wrapr/articles/let.html"><code>wrapr::let()</code></a>.  <code>wrapr::let()</code> re-maps names during code execution using a "<code>TARGET = NEWNAME</code>" target replacement scheme, where <code>TARGET</code> acts as if it had the name stored in <code>NEWNAME</code> for the duration of the let-block.
 </li>

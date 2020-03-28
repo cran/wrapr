@@ -50,15 +50,19 @@ Primary `wrapr` services include:
     (anonymous function builder)
   - [`let()`](https://winvector.github.io/wrapr/reference/let.html) (let
     block)
+  - [`evalb()`/`si()`](https://winvector.github.io/wrapr/articles/bquote.html)
+    (evaluate with `bquote` / string interpolation)
+  - [`sortv()`](https://winvector.github.io/wrapr/reference/sortv.html)
+    (sort a data.frame by a set of columns).
 
 <!-- end list -->
 
 ``` r
 library(wrapr)
 packageVersion("wrapr")
- #  [1] '1.9.6'
+ #  [1] '2.0.0'
 date()
- #  [1] "Wed Jan 22 18:20:54 2020"
+ #  [1] "Fri Mar 27 14:05:56 2020"
 ```
 
 ## [`%.>%` (dot pipe or dot arrow)](https://winvector.github.io/wrapr/articles/dot_pipe.html)
@@ -223,11 +227,11 @@ d <- data.frame(
   group = c('train', 'calibrate', 'test'),
   stringsAsFactors = FALSE)
 
-to[
-  train_data <- train,
-  calibrate_data <- calibrate,
-  test_data <- test
-  ] <- split(d, d$group)
+unpack[
+  train_data = train,
+  calibrate_data = calibrate,
+  test_data = test
+  ] := split(d, d$group)
 
 knitr::kable(train_data)
 ```
@@ -376,17 +380,22 @@ c(1, NA) %?% list(NA, 20)
 
 ## [`%.|%` (reduce/expand args)](https://winvector.github.io/wrapr/reference/reduceexpand.html)
 
-The operators `%.|%` and `%|.%` are wrappers for `do.call()`. These
-functions are used to pass arguments from a list to variadic function
-(such as `sum()`). The operator symbols are meant to invoke non-tilted
-versions of APL’s reduce and expand operators.
+`x %.|% f` stands for `f(x[[1]], x[[2]], ..., x[[length(x)]])`. `v %|.%
+x` also stands for `f(x[[1]], x[[2]], ..., x[[length(x)]])`. The two
+operators are the same, the variation just allowing the user to choose
+the order they write things. The mnemonic is: “data goes on the dot-side
+of the operator.”
 
 ``` r
-1:10 %.|% sum
- #  [1] 55
+args <- list('prefix_', c(1:3), '_suffix')
 
-1:4 %.>% do.call(log, list(., base = 2))
- #  [1] 0.000000 1.000000 1.584963 2.000000
+args %.|% paste0
+ #  [1] "prefix_1_suffix" "prefix_2_suffix" "prefix_3_suffix"
+# prefix_1_suffix" "prefix_2_suffix" "prefix_3_suffix"
+
+paste0 %|.% args
+ #  [1] "prefix_1_suffix" "prefix_2_suffix" "prefix_3_suffix"
+# prefix_1_suffix" "prefix_2_suffix" "prefix_3_suffix"
 ```
 
 ## [`DebugFnW()`](https://winvector.github.io/wrapr/articles/DebugFnW.html)
@@ -415,10 +424,6 @@ wrapr::defineLambda()
 
 # square numbers 1 through 4
 sapply(1:4, λ(x, x^2))
- #  [1]  1  4  9 16
-
-# alternate "colon equals with braces" function builder notation
-sapply(1:4, x := { x^2 })
  #  [1]  1  4  9 16
 ```
 
@@ -487,11 +492,57 @@ formal documentation can be found
 `wrapr::let()` was inspired by `gtools::strmacro()` and
 `base::bquote()`, please see
 [here](https://github.com/WinVector/wrapr/blob/master/extras/bquote.md)
-for some notes on macro methods in `R`.
+for some notes on macro methods in
+`R`.
 
-For working with `dplyr` `0.7.*` we strongly suggest `wrapr::let()` (or
-even an alternate approach called
-[`seplyr`](https://github.com/WinVector/seplyr/blob/master/README.md)).
+# [`evalb()`/`si()`](https://winvector.github.io/wrapr/articles/bquote.html) (evaluate with `bquote` / string interpolation)
+
+`wrapr` supplies unified notation for quasi-quotation and string
+interpolation.
+
+``` r
+angle = 1:10
+variable <- "angle"
+
+# execute code
+evalb(
+  plot(x = .(-variable), y = sin(.(-variable)))
+)
+```
+
+![](tools/README-unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+
+# alter string
+si("plot(x = .(variable), y = .(variable))")
+ #  [1] "plot(x = \"angle\", y = \"angle\")"
+```
+
+The extra `.(-x)` form is a shortcut for
+`.(as.name(x))`.
+
+# [`sortv()`](https://winvector.github.io/wrapr/reference/sortv.html) (sort a data.frame by a set of columns)
+
+This is the sort command that is missing from `R`: sort a `data.frame`
+by a chosen set of columns specified in a variable.
+
+``` r
+d <- data.frame(
+  x = c(2, 2, 3, 3, 1, 1), 
+  y = 6:1,
+  z = 1:6)
+order_cols <- c('x', 'y')
+
+sortv(d, order_cols)
+ #    x y z
+ #  6 1 1 6
+ #  5 1 2 5
+ #  2 2 5 2
+ #  1 2 6 1
+ #  4 3 3 4
+ #  3 3 4 3
+```
 
 ## Installation
 

@@ -38,7 +38,7 @@ knitr::kable(test_data)
 
 ## -----------------------------------------------------------------------------
 # split d and unpack the smaller data frames into separate variables
-unpack[traind = train, testd = test, cald = calibrate] <- split(d, d$group)
+unpack[traind = train, testd = test, cald = calibrate] := split(d, d$group)
 
 knitr::kable(traind)
 
@@ -55,11 +55,11 @@ knitr::kable(calibrate)
 
 knitr::kable(test)
 
-# try the unpack[]<- notation
+# try the unpack[] assignment notation
 
 rm(list = c('train', 'test', 'calibrate'))
 
-unpack[test, train, calibrate] <- split(d, d$group)
+unpack[test, train, calibrate] := split(d, d$group)
 
 knitr::kable(train)
 

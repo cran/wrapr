@@ -8,11 +8,11 @@
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="John Mount" />
 
-<meta name="date" content="2020-01-26" />
+<meta name="date" content="2020-03-27" />
 
 <title>lambda Function Builder</title>
 
@@ -117,9 +117,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -288,7 +285,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -303,7 +301,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">lambda Function Builder</h1>
 <h4 class="author">John Mount</h4>
-<h4 class="date">2020-01-26</h4>
+<h4 class="date">2020-03-27</h4>
 
 
 
@@ -312,11 +310,10 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(<span class="st">&quot;wrapr&quot;</span>)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">wrapr<span class="op">::</span><span class="kw">defineLambda</span>(<span class="dt">name =</span> <span class="st">&quot;l&quot;</span>)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">ls</span>()</a></code></pre></div>
-<pre><code>##  [1] &quot;LEFT_NAME&quot;    &quot;OTHER_SYMBOL&quot; &quot;X&quot;            &quot;Y&quot;            &quot;angle&quot;       
-##  [6] &quot;d&quot;            &quot;d2&quot;           &quot;df&quot;           &quot;exp_step&quot;     &quot;f&quot;           
-## [11] &quot;f5&quot;           &quot;inputs&quot;       &quot;l&quot;            &quot;model&quot;        &quot;model_f&quot;     
-## [16] &quot;model_o&quot;      &quot;model_p&quot;      &quot;plotb&quot;        &quot;pred_step&quot;    &quot;s4&quot;          
-## [21] &quot;s5&quot;           &quot;variable&quot;     &quot;x&quot;</code></pre>
+<pre><code>##  [1] &quot;LEFT_NAME&quot;       &quot;OTHER_SYMBOL&quot;    &quot;X&quot;               &quot;Y&quot;              
+##  [5] &quot;angle&quot;           &quot;d&quot;               &quot;d2&quot;              &quot;df&quot;             
+##  [9] &quot;f&quot;               &quot;inputs&quot;          &quot;l&quot;               &quot;plotb&quot;          
+## [13] &quot;variable&quot;        &quot;variable_name&quot;   &quot;variable_string&quot; &quot;x&quot;</code></pre>
 <p>Note: throughout this document we are using the letter “<code>l</code>” as a stand-in for the Greek letter lambda, as this non-ASCII character can cause formatting problems in some situations.</p>
 <p>You can use <code>l()</code> to define functions. The syntax is: <code>l(arg [, arg]*, body [, env=env])</code>. That is we write a <code>l()</code>-call (which you can do by cutting and pasting) and list the desired function arguments and then the function body. For example the function that squares numbers is:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">l</span>(x, x<span class="op">^</span><span class="dv">2</span>)</a></code></pre></div>
@@ -328,11 +325,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>Dot-pipe style notation does not need the <code>l()</code> factory as it treats pipe stages as expressions parameterized over the variable “<code>.</code>”:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="dv">1</span><span class="op">:</span><span class="dv">4</span> <span class="op">%.&gt;%</span><span class="st"> </span>{ .<span class="op">^</span><span class="dv">2</span> }</a></code></pre></div>
 <pre><code>## [1]  1  4  9 16</code></pre>
-<p>If you do want an operator notation for function construction you can also use on of the variations of the named map builder:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>) <span class="op">%.&gt;%</span><span class="st"> </span>(x <span class="op">:</span><span class="er">=</span><span class="st"> </span>{ x<span class="op">^</span><span class="dv">2</span> })(.)</a></code></pre></div>
-<pre><code>## [1]  1  4  9 16</code></pre>
-<p>And we can build functions that take more than one argument as follows:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">l</span>(x, y, x <span class="op">+</span><span class="st"> </span><span class="dv">3</span><span class="op">*</span>y)</a></code></pre></div>
+<p>And we can also build functions that take more than one argument as follows:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">l</span>(x, y, x <span class="op">+</span><span class="st"> </span><span class="dv">3</span><span class="op">*</span>y)</a></code></pre></div>
 <pre><code>## function (x, y) 
 ## x + 3 * y</code></pre>
 

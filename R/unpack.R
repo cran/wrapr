@@ -3,28 +3,51 @@
 #' Re-write captured \code{...} arguments as assignments.
 #'
 #' Re-write captured \code{...} arguments as a \code{c(DESTINATION = TARGET)} character vector.
-#' Suggested capture code is: \code{as.list(do.call(bquote, list(substitute(list(...)))))[-1]}
+#' Suggested capture code is: \code{substitute(list(...))}. Allows \code{bquote} \code{.()} substitution.
 #'
 #' @param captured_dots captured \code{...}.
+#' @param unpack_environment environment to look in
+#' @param allow_dot_on_left logical if TRUE allow forms like \code{.(a) = a} and \code{.(a)}.
 #' @returns named character vector describing the desired mapping.
 #'
 #' @examples
 #'
 #' f <- function(...) {
 #'   unpack_environment <- parent.frame(n = 1)
-#'   captured_dots <- as.list(do.call(bquote,
-#'                                    list(substitute(list(...)),
-#'                                         where = unpack_environment),
-#'                                    envir = unpack_environment))[-1]
-#'   grab_assignments_from_dots(captured_dots)
+#'   orig_args <- substitute(list(...))
+#'   grab_assignments_from_dots(orig_args, unpack_environment)
 #' }
 #' f(a, c = d, e := f, g <- h, i -> j)
 #' # should equal c('a', 'c' = 'd', 'e' = 'f', 'g' = 'h', 'j' = 'i')
 #'
 #' @keywords internal
+#'
 #' @export
 #'
-grab_assignments_from_dots <- function(captured_dots) {
+grab_assignments_from_dots <- function(captured_args, unpack_environment = parent.frame(), allow_dot_on_left = FALSE) {
+  force(unpack_environment)
+  if(!allow_dot_on_left) {
+    nms <- names(captured_args)
+    for(i in seqi(2, length(captured_args))) {
+      ai <- captured_args[[i]]
+      # .(a) := a case
+      if(is.call(ai) && (as.character(ai[[1]])[[1]] == ':=')) {
+        if((length(ai) >= 2) && is.call(ai[[2]]) && (as.character(ai[[2]])[[1]] == '.')) {
+          stop("bquote .() notation not allowed on left side of expressions")
+        }
+      }
+      # .(a) case
+      if(is.call(ai) && (as.character(ai[[1]])[[1]] == '.')) {
+        if((i > length(nms)) || (nchar(nms[[i]]) == 0)) {
+          stop("bquote .() notation allowed as whole expression")
+        }
+      }
+    }
+  }
+  captured_dots <- as.list(do.call(bquote,
+                                   list(captured_args,
+                                        where = unpack_environment),
+                                   envir = unpack_environment))[-1]
   nargs <- length(captured_dots)
   if(nargs <= 0) {
     return(character(0))
@@ -45,8 +68,8 @@ grab_assignments_from_dots <- function(captured_dots) {
       if(length(vi) != 3) {
         stop("wrapr::grab_assignments_from_dots call-position must be length 3")
       }
-      if(!(as.character(vi[[1]]) %in% c(':=', '=', '<-', '->'))) {
-        stop("wrapr::grab_assignments_from_dots call must be one of ':=', '=', '<-', '->'.")
+      if(!(as.character(vi[[1]]) %in% c('=', '<-', '->', ':=', '%:=%'))) {
+        stop("wrapr::grab_assignments_from_dots call must be one of '=', '<-', '->', ':=', or '%:=%'.")
       }
       ni <- vi[[2]]
       vi <- vi[[3]]
@@ -86,7 +109,7 @@ grab_assignments_from_dots <- function(captured_dots) {
   } else {
     non_empty_names <- names[nchar(names)>0]
     if(length(unique(non_empty_names)) != length(non_empty_names)) {
-      stop("wrapr::grab_assignments_from_dots, non-empty names must be unique")
+      stop("wrapr::grab_assignments_from_dots, target names must be unique")
     }
   }
   names(values) <- names
@@ -303,16 +326,15 @@ unpack_impl <- function(..., unpack_environment, value, str_args, object_name = 
 }
 
 
-mk_unpack_single_arg_fn <- function(str_args, object_name, our_class) {
+mk_unpack_single_arg_fn <- function(str_args, object_name, our_class, unpack_environment) {
   force(str_args)
   force(object_name)
   force(our_class)
+  force(unpack_environment)
   str_args <- validate_assignment_named_map(str_args, extra_forbidden_names = object_name)
 
   # build function return in a fairly clean environment
   f <- function(.) {
-    # get environment to work in
-    unpack_environment <- parent.frame(n = 1)
     unpack_impl(unpack_environment = unpack_environment,
                 value = .,
                 str_args = str_args,
@@ -323,6 +345,7 @@ mk_unpack_single_arg_fn <- function(str_args, object_name, our_class) {
 
   attr(f, 'object_name') <- object_name
   attr(f, 'str_args') <- str_args
+  attr(f, 'unpack_environment') <- unpack_environment
   class(f) <- our_class
   return(f)
 }
@@ -333,8 +356,9 @@ mk_unpack_single_arg_fn <- function(str_args, object_name, our_class) {
 #' Create a value unplacking object that records it is stored by name \code{object_name} (function version).
 #'
 #' Array-assign form can not use the names: \code{.}, \code{wrapr_private_self}, \code{value}, or the name stored in \code{object_name}.
-#' function form can not use the names: \code{.} or \code{wrapr_private_value}. Array-form will wrong own name into working environment
-#' as a side-effect.
+#' function form can not use the names: \code{.} or \code{wrapr_private_value}.
+#' Array-form with \code{=}, \code{<-}, \code{->} will write own name into working environment
+#' as a side-effect. Array-form with \code{:=} does not have the side-effect.
 #'
 #'
 #' @param object_name character, name the object is stored as
@@ -360,11 +384,8 @@ UnpackerF <- function(object_name = NULL) {
     unpack_environment <- parent.frame(n = 1)
     # get the targets
     # capture the arguments unevaluted, and run through bquote
-    str_args <- as.list(do.call(bquote,
-                                list(substitute(list(...)),
-                                     where = unpack_environment),
-                                envir = unpack_environment))[-1]
-    str_args <- grab_assignments_from_dots(str_args)
+    orig_args <- substitute(list(...))
+    str_args <- grab_assignments_from_dots(orig_args, unpack_environment)
     unpack_impl(unpack_environment = unpack_environment,
                 value = wrapr_private_value,
                 str_args = str_args,
@@ -386,8 +407,9 @@ UnpackerF <- function(object_name = NULL) {
 #' Create a value unplacking object that records it is stored by name \code{object_name} (eager pipe version).
 #'
 #' Array-assign form can not use the names: \code{.}, \code{wrapr_private_self}, \code{value}, or the name stored in \code{object_name}.
-#' function form can not use the names: \code{.} or \code{wrapr_private_value}. Array-form will wrong own name into working environment
-#' as a side-effect.
+#' function form can not use the names: \code{.} or \code{wrapr_private_value}.
+#' Array-form with \code{=}, \code{<-}, \code{->} will write own name into working environment
+#' as a side-effect. Array-form with \code{:=} does not have the side-effect.
 #'
 #'
 #' @param object_name character, name the object is stored as
@@ -413,14 +435,12 @@ UnpackerP <- function(object_name = NULL) {
     unpack_environment <- parent.frame(n = 1)
     # get the targets
     # capture the arguments unevaluted, and run through bquote
-    str_args <- as.list(do.call(bquote,
-                                list(substitute(list(...)),
-                                     where = unpack_environment),
-                                envir = unpack_environment))[-1]
-    str_args <- grab_assignments_from_dots(str_args)
+    orig_args <- substitute(list(...))
+    str_args <- grab_assignments_from_dots(orig_args, unpack_environment)
     bound_f <- mk_unpack_single_arg_fn(str_args = str_args,
                                        object_name = object_name,
-                                       our_class = "UnpackTarget")
+                                       our_class = "UnpackTarget",
+                                       unpack_environment = unpack_environment)
     return(bound_f)
   }
   attr(f, 'object_name') <- object_name
@@ -466,7 +486,7 @@ print.Unpacker <- function(x, ...) {
 #' All non-NA target names must be unique.
 #'
 #' Note: when using \code{[]<-} notation, a reference to the unpacker object is written into the unpacking environment as a side-effect
-#' of the implied array assignment.
+#' of the implied array assignment. \code{:=} assigment does not have this side-effect.
 #' Array-assign form can not use the names: \code{.}, \code{wrapr_private_self}, \code{value}, or the name of the unpacker itself.
 #' For more details please see here \url{http://www.win-vector.com/blog/2020/01/unpack-your-values-in-r/}.
 #'
@@ -484,7 +504,7 @@ print.Unpacker <- function(x, ...) {
 #' d <- data.frame(x = 1:2,
 #'                 g=c('test', 'train'),
 #'                 stringsAsFactors = FALSE)
-#' to[train_set = train, test_set = test] <- split(d, d$g)
+#' to[train_set = train, test_set = test] := split(d, d$g)
 #' # train_set and test_set now correctly split
 #' print(train_set)
 #' print(test_set)
@@ -492,11 +512,18 @@ print.Unpacker <- function(x, ...) {
 #'
 #' # named unpacking NEWNAME = OLDNAME implicit form
 #' # values are matched by name, not index
-#' to[train, test] <- split(d, d$g)
+#' to[train, test] := split(d, d$g)
 #' print(train)
 #' print(test)
 #' rm(list = c('train', 'test'))
 #'
+#' # bquote example
+#' train_col_name <- 'train'
+#' test_col_name <- 'test'
+#' to[train = .(train_col_name), test = .(test_col_name)] := split(d, d$g)
+#' print(train)
+#' print(test)
+#' rm(list = c('train', 'test'))
 #'
 #' @export
 #'
@@ -505,11 +532,8 @@ print.Unpacker <- function(x, ...) {
   # get environment to work in
   unpack_environment <- parent.frame(n = 1)
   # capture ... args
-  str_args <- as.list(do.call(bquote,
-                              list(substitute(list(...)),
-                                   where = unpack_environment),
-                              envir = unpack_environment))[-1]
-  str_args <- grab_assignments_from_dots(str_args)
+  orig_args <- substitute(list(...))
+  str_args <- grab_assignments_from_dots(orig_args, unpack_environment)
   # the array update is going to write an object into the
   # destination environment after returning from this method,
   # try to ensure it is obvious it is the exact
@@ -545,15 +569,13 @@ print.Unpacker <- function(x, ...) {
   # get environment to work in
   unpack_environment <- parent.frame(n = 1)
   # capture .. args
-  str_args <- as.list(do.call(bquote,
-                              list(substitute(list(...)),
-                                   where = unpack_environment),
-                              envir = unpack_environment))[-1]
-  str_args <- grab_assignments_from_dots(str_args)
+  orig_args <- substitute(list(...))
+  str_args <- grab_assignments_from_dots(orig_args, unpack_environment)
   object_name <- attr(wrapr_private_self, 'object_name')
   return(mk_unpack_single_arg_fn(str_args = str_args,
                                  object_name = object_name,
-                                 our_class = "UnpackTarget"))
+                                 our_class = "UnpackTarget",
+                                 unpack_environment = unpack_environment))
 }
 
 
@@ -561,12 +583,15 @@ print.Unpacker <- function(x, ...) {
 format.UnpackTarget <- function(x, ...) {
   object_name <- attr(x, 'object_name')
   str_args <- attr(x, 'str_args')
+  unpack_environment <- attr(x, 'unpack_environment')
   q_name <- "NULL"
   if(!is.null(object_name)) {
     q_name <- sQuote(object_name)
   }
-  return(paste0("wrapr::UnpackTarget(object_name = ", q_name,
-                ", str_args = ", map_to_char(str_args),
+  return(paste0("wrapr::UnpackTarget(",
+                "\n\tobject_name = ", q_name,
+                ",\n\tstr_args = ", map_to_char(str_args),
+                ",\n\tunpack_environment = ", format(unpack_environment),
                 ")"))
 }
 
@@ -592,7 +617,7 @@ print.UnpackTarget <- function(x, ...) {
 #' All non-NA target names must be unique.
 #'
 #' Note: when using \code{[]<-} notation, a reference to the unpacker object is written into the unpacking environment as a side-effect
-#' of the implied array assignment.
+#' of the implied array assignment. \code{:=} assigment does not have this side-effect.
 #' Array-assign form can not use the names: \code{.}, \code{wrapr_private_self}, \code{value}, or \code{to}.
 #' function form can not use the names: \code{.} or \code{wrapr_private_value}.
 #' For more detials please see here \url{http://www.win-vector.com/blog/2020/01/unpack-your-values-in-r/}.
@@ -609,7 +634,7 @@ print.UnpackTarget <- function(x, ...) {
 #' d <- data.frame(x = 1:2,
 #'                 g=c('test', 'train'),
 #'                 stringsAsFactors = FALSE)
-#' to[train_set = train, test_set = test] <- split(d, d$g)
+#' to[train_set = train, test_set = test] := split(d, d$g)
 #' # train_set and test_set now correctly split
 #' print(train_set)
 #' print(test_set)
@@ -617,7 +642,7 @@ print.UnpackTarget <- function(x, ...) {
 #'
 #' # named unpacking NEWNAME = OLDNAME implicit form
 #' # values are matched by name, not index
-#' to[train, test] <- split(d, d$g)
+#' to[train, test] := split(d, d$g)
 #' print(train)
 #' print(test)
 #' rm(list = c('train', 'test'))
@@ -631,6 +656,14 @@ print.UnpackTarget <- function(x, ...) {
 #' # magrittr pipe due to magrittr's introduction of temporary
 #' # intermediate environments during evaluation.
 #'
+#' # bquote example
+#' train_col_name <- 'train'
+#' test_col_name <- 'test'
+#' to[train = .(train_col_name), test = .(test_col_name)] := split(d, d$g)
+#' print(train)
+#' print(test)
+#' rm(list = c('train', 'test'))
+#'
 #' @export
 #'
 to <- UnpackerP(object_name = "to")
@@ -641,8 +674,8 @@ to <- UnpackerP(object_name = "to")
 #' NULL is a special case that is unpacked to all targets. NA targets are skipped.
 #' All non-NA target names must be unique.
 #'
-#' Note: a reference to the unpacker object is written into the unpacking environment as a side-effect
-#' of the implied array assignment.
+#' Note: when using \code{[]<-} notation, a reference to the unpacker object is written into the unpacking environment as a side-effect
+#' of the implied array assignment. \code{:=} assigment does not have this side-effect.
 #' Array-assign form can not use the names: \code{.}, \code{wrapr_private_self}, \code{value}, or \code{unpack}.
 #' Function form can not use the names: \code{.} or \code{wrapr_private_value}.
 #' For more details please see here \url{http://www.win-vector.com/blog/2020/01/unpack-your-values-in-r/}.
@@ -660,7 +693,7 @@ to <- UnpackerP(object_name = "to")
 #' d <- data.frame(x = 1:2,
 #'                 g=c('test', 'train'),
 #'                 stringsAsFactors = FALSE)
-#' unpack[train_set = train, test_set = test] <- split(d, d$g)
+#' unpack[train_set = train, test_set = test] := split(d, d$g)
 #' # train_set and test_set now correctly split
 #' print(train_set)
 #' print(test_set)
@@ -668,7 +701,7 @@ to <- UnpackerP(object_name = "to")
 #'
 #' # named unpacking NEWNAME = OLDNAME implicit form
 #' # values are matched by name, not index
-#' unpack[train, test] <- split(d, d$g)
+#' unpack[train, test] := split(d, d$g)
 #' print(train)
 #' print(test)
 #' rm(list = c('train', 'test'))
@@ -688,7 +721,26 @@ to <- UnpackerP(object_name = "to")
 #' # magrittr pipe due to magrittr's introduction of temporary
 #' # intermediate environments during evaluation.
 #'
+#' # bquote example
+#' train_col_name <- 'train'
+#' test_col_name <- 'test'
+#' unpack(split(d, d$g), train = .(train_col_name), test = .(test_col_name))
+#' print(train)
+#' print(test)
+#' rm(list = c('train', 'test'))
+#'
 #' @export
 #'
 unpack <- UnpackerF(object_name = "unpack")
+
+
+#' @export
+`:=.UnpackTarget` <- function(targets, values) {
+  targets(values)
+}
+
+#' @export
+`%:=%.UnpackTarget` <- function(targets, values) {
+  targets(values)
+}
 

@@ -6,16 +6,16 @@
 \alias{\%:=\%}
 \title{Named map builder.}
 \usage{
-named_map_builder(names, values)
+named_map_builder(targets, values)
 
-`:=`(names, values)
+`:=`(targets, values)
 
-names \%:=\% values
+targets \%:=\% values
 }
 \arguments{
-\item{names}{names to set.}
+\item{targets}{names to set.}
 
-\item{values}{values to assign names to (and return).}
+\item{values}{values to assign to names (and return).}
 }
 \value{
 values with names set.
@@ -37,19 +37,6 @@ c('a', 'b') := c('1', '2')
 name <- 'a'
 name := '5'
 # equivalent to: c('a' = '5')
-
-# fn version:
-#  applied when right side is {}
-#  or when left side is of class formula.
-
-g <- x~y := { x + 3*y }
-g(1,100)
-
-f <- ~x := x^2
-f(7)
-
-f <- x := { sqrt(x) }
-f(7)
 
 }
 \seealso{

@@ -1,7 +1,7 @@
 ## -----------------------------------------------------------------------------
 library("wrapr")
 
-variable <- as.name("angle")
+variable <- "angle"
 
 sinterp(
   'variable name is .(variable)'
@@ -9,33 +9,37 @@ sinterp(
 
 ## -----------------------------------------------------------------------------
 angle = 1:10
-variable <- as.name("angle")
+variable_name <- as.name("angle")
 
-evalb(
-  
-  plot(x = .(variable), 
-       y = sin(.(variable)))
-  
-  )
-
-## -----------------------------------------------------------------------------
-print(evalb)
-
-## -----------------------------------------------------------------------------
 if(requireNamespace("graphics", quietly = TRUE)) {
-bquote(
-  
-  plot(x = .(variable), 
-       y = sin(.(variable)))
-  
+  evalb(
+    
+    plot(x = .(-variable_name), 
+         y = sin(.(-variable_name)))
+    
+  )
+}
+
+## -----------------------------------------------------------------------------
+angle = 1:10
+variable_string <- "angle"
+
+if(requireNamespace("graphics", quietly = TRUE)) {
+  evalb(
+    
+    plot(x = .(-variable_string), 
+         y = sin(.(-variable_string)))
+    
   )
 }
 
 ## -----------------------------------------------------------------------------
 plotb <- bquote_function(graphics::plot)
 
-plotb(x = .(variable), 
-      y = sin(.(variable)))
+if(requireNamespace("graphics", quietly = TRUE)) {
+  plotb(x = .(-variable), 
+        y = sin(.(-variable)))
+}
 
 ## -----------------------------------------------------------------------------
 f <- function() { 
@@ -49,5 +53,11 @@ f <- function() {
 
 # evaluate "f()"" with . = 5
 # not interesting as "f()"" is "dot free" 
+5 %.>% f()
+
+## -----------------------------------------------------------------------------
+attr(f, 'dotpipe_eager_eval_function') <- TRUE
+
+# now evalutates pipe on f() result.
 5 %.>% f()
 

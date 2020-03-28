@@ -8,11 +8,11 @@
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Nina Zumel and John Mount" />
 
-<meta name="date" content="2020-01-26" />
+<meta name="date" content="2020-03-27" />
 
 <title>Multiple Assignment with unpack</title>
 
@@ -117,9 +117,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -288,7 +285,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -303,7 +301,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Multiple Assignment with unpack</h1>
 <h4 class="author">Nina Zumel and John Mount</h4>
-<h4 class="date">2020-01-26</h4>
+<h4 class="date">2020-03-27</h4>
 
 
 
@@ -562,7 +560,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>You can also use <code>unpack</code> with an assignment notation similar to the notation used with the<br />
 <a href="https://CRAN.R-project.org/package=zeallot"><code>zeallot::%&lt;-%</code></a> pipe:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="co"># split d and unpack the smaller data frames into separate variables</span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">unpack[traind =<span class="st"> </span>train, testd =<span class="st"> </span>test, cald =<span class="st"> </span>calibrate] &lt;-<span class="st"> </span><span class="kw">split</span>(d, d<span class="op">$</span>group)</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">unpack[traind =<span class="st"> </span>train, testd =<span class="st"> </span>test, cald =<span class="st"> </span>calibrate] <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">split</span>(d, d<span class="op">$</span>group)</a>
 <a class="sourceLine" id="cb10-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb10-4" data-line-number="4">knitr<span class="op">::</span><span class="kw">kable</span>(traind)</a></code></pre></div>
 <table>
@@ -645,7 +643,6 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </tr>
 </tbody>
 </table>
-<p>Note: the <code>&lt;-</code> array assignment has the minor side-effect of writing a value for <code>unpack</code> into the working environment. This object is small, and the operation is blocked if there is an existing <code>unpack</code> object that is not such a side effect in your workspace (so it will not overwrite something else).</p>
 <div id="reusing-the-list-names-as-variables" class="section level3">
 <h3>Reusing the list names as variables</h3>
 <p>If you are willing to assign the elements of the list into variables with the same names, you can just use the names:</p>
@@ -732,11 +729,11 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co"># try the unpack[]&lt;- notation</span></a>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co"># try the unpack[] assignment notation</span></a>
 <a class="sourceLine" id="cb16-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb16-3" data-line-number="3"><span class="kw">rm</span>(<span class="dt">list =</span> <span class="kw">c</span>(<span class="st">'train'</span>, <span class="st">'test'</span>, <span class="st">'calibrate'</span>))</a>
 <a class="sourceLine" id="cb16-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb16-5" data-line-number="5">unpack[test, train, calibrate] &lt;-<span class="st"> </span><span class="kw">split</span>(d, d<span class="op">$</span>group)</a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">unpack[test, train, calibrate] <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">split</span>(d, d<span class="op">$</span>group)</a>
 <a class="sourceLine" id="cb16-6" data-line-number="6"></a>
 <a class="sourceLine" id="cb16-7" data-line-number="7">knitr<span class="op">::</span><span class="kw">kable</span>(train)</a></code></pre></div>
 <table>
@@ -993,6 +990,10 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="vadr" class="section level3">
 <h3><code>vadr</code></h3>
 <p><a href="https://github.com/crowding/vadr/blob/master/R/bind.R"><code>vadr::bind</code></a> supplies named unpacking, but appears to use a “<code>SOURCE = DESTINATION</code>” notation. That is the reverse of a “<code>DESTINATION = SOURCE</code>” which is how both R assignments and argument binding are already written.</p>
+</div>
+<div id="tidytidbits" class="section level3">
+<h3><code>tidytidbits</code></h3>
+<p><a href="https://CRAN.R-project.org/package=tidytidbits"><code>tidytidbits</a> supplies positional unpacking with a <code>%=%</code> notation.</p>
 </div>
 </div>
 

@@ -41,6 +41,17 @@ knitr::kable(test_data)
 ## -----------------------------------------------------------------------------
 rm(list = c('train_data', 'calibrate_data', 'test_data', 'to'))
 
+to[
+  train_data <- train,
+  calibrate_data <- calibrate,
+  test_data <- test
+  ] := split(d, d$group)
+
+ls()
+
+## -----------------------------------------------------------------------------
+rm(list = c('train_data', 'calibrate_data', 'test_data'))
+
 ## -----------------------------------------------------------------------------
 split(d, d$group) %.>% to[
   train_data <- train,
@@ -144,6 +155,20 @@ rm(list = c('train_data', 'test_data'))
 split(d, d$group) %.>%
   to[
      train,
+     test
+     ]
+
+ls()
+
+## -----------------------------------------------------------------------------
+rm(list = c('train', 'test'))
+
+## -----------------------------------------------------------------------------
+train_source <- 'train'
+
+split(d, d$group) %.>%
+  to[
+     train_result = .(train_source),
      test
      ]
 
