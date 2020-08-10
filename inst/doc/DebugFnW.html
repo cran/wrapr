@@ -12,7 +12,7 @@
 
 <meta name="author" content="John Mount, Nina Zumel" />
 
-<meta name="date" content="2020-03-27" />
+<meta name="date" content="2020-08-10" />
 
 <title>Debug Vignette</title>
 
@@ -301,7 +301,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Debug Vignette</h1>
 <h4 class="author">John Mount, Nina Zumel</h4>
-<h4 class="date">2020-03-27</h4>
+<h4 class="date">2020-08-10</h4>
 
 
 
@@ -348,7 +348,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <pre><code>## List of 4
 ##  $ fn       :function (i)  
 ##   ..- attr(*, &quot;srcref&quot;)= 'srcref' int [1:8] 5 6 5 32 6 32 5 5
-##   .. ..- attr(*, &quot;srcfile&quot;)=Classes 'srcfilecopy', 'srcfile' &lt;environment: 0x7fb60f03faf8&gt; 
+##   .. ..- attr(*, &quot;srcfile&quot;)=Classes 'srcfilecopy', 'srcfile' &lt;environment: 0x7fe1085b8c40&gt; 
 ##  $ args     :List of 1
 ##   ..$ : num 0
 ##  $ namedargs: language df(x)
@@ -386,7 +386,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb15-9" data-line-number="9"><span class="co"># clean up</span></a>
 <a class="sourceLine" id="cb15-10" data-line-number="10"><span class="kw">file.remove</span>(saveDest)</a></code></pre></div>
 <p>For more practice, please view <a href="https://youtu.be/zFEC9-1XSN8?list=PLAKBwakacHbQT51nPHex1on3YNCCmggZA">our video on wrapper debugging</a>.</p>
-<p>Note: <code>wrapr</code> debug functionality rehashes some of the capabilities of <code>dump.frames</code> (see <code>help(dump.frames)</code>). Roughly <code>dump.frames</code> catches the exception (so trying to step or continue re-throws, and arguments may have moved from their starting values) and <code>wrapr</code> catches the call causing the exception in a state <em>prior</em> to starting the calculation (so arguments should be at their starting values). We have found some cases where <code>wrapr</code> is a bit more convenient in how it interacts with the <code>RStudio</code> visual debugger (please see this <a href="https://youtu.be/2NCj4Hacm8E?list=PLAKBwakacHbQT51nPHex1on3YNCCmggZA">screencast</a> for some comparison). Also, please see <a href="http://www.win-vector.com/blog/2012/10/error-handling-in-r/">this article</a> for use of <code>tryCatch</code> and <code>withRestarts</code>.</p>
+<p>Note: <code>wrapr</code> debug functionality rehashes some of the capabilities of <code>dump.frames</code> (see <code>help(dump.frames)</code>). Roughly <code>dump.frames</code> catches the exception (so trying to step or continue re-throws, and arguments may have moved from their starting values) and <code>wrapr</code> catches the call causing the exception in a state <em>prior</em> to starting the calculation (so arguments should be at their starting values). We have found some cases where <code>wrapr</code> is a bit more convenient in how it interacts with the <code>RStudio</code> visual debugger (please see this <a href="https://youtu.be/2NCj4Hacm8E?list=PLAKBwakacHbQT51nPHex1on3YNCCmggZA">screencast</a> for some comparison). Also, please see <a href="https://win-vector.com/2012/10/09/error-handling-in-r/">this article</a> for use of <code>tryCatch</code> and <code>withRestarts</code>.</p>
 
 
 

@@ -12,7 +12,7 @@
 
 <meta name="author" content="John Mount, Win-Vector LLC" />
 
-<meta name="date" content="2020-03-27" />
+<meta name="date" content="2020-08-10" />
 
 <title>Frame Tools</title>
 
@@ -301,12 +301,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Frame Tools</h1>
 <h4 class="author">John Mount, Win-Vector LLC</h4>
-<h4 class="date">2020-03-27</h4>
+<h4 class="date">2020-08-10</h4>
 
 
 
 <p><a href="https://winvector.github.io/wrapr/"><code>wrapr</code></a> supplies a few tools for creating example <code>data.frame</code>s. An important use case is: building the control table for <code>cdata::rowrecs_to_blocks()</code> and <code>cdata::blocks_to_rowrecs()</code> (example <a href="https://winvector.github.io/cdata/articles/cdata.html">here</a>).</p>
-<p>Lets see how to create an example data frame. The idea is similar to that found in <a href="http://tibble.tidyverse.org/reference/tribble.html"><code>tibble::tribble()</code></a>: for small tables a row oriented constructor can be quite legible, and avoids the cognitive load of taking a transpose.</p>
+<p>Lets see how to create an example data frame. The idea is similar to that found in <a href="https://tibble.tidyverse.org/reference/tribble.html"><code>tibble::tribble()</code></a>: for small tables a row oriented constructor can be quite legible, and avoids the cognitive load of taking a transpose.</p>
 <p>For example we can create a typical <code>data.frame</code> as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="dt">names =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;d&quot;</span>),</a>

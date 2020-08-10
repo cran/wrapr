@@ -12,7 +12,8 @@ mk_formula(
   outcome_target = NULL,
   outcome_comparator = "==",
   env = baseenv(),
-  extra_values = NULL
+  extra_values = NULL,
+  as_character = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ mk_formula(
 \item{env}{environment to use in formula (unless extra_values is non empty, then this is a parent environemnt).}
 
 \item{extra_values}{if not empty extra values to be added to a new formula environment containing env.}
+
+\item{as_character}{if TRUE return formula as a character string.}
 }
 \value{
 a formula object
@@ -44,8 +47,8 @@ Note: outcome and variables
 are each intended to be simple variable names or column names (or .). They are not
 intended to specify
 interactions, I()-terms, transforms, general experessions or other complex formula terms.
-Essentially the same effect as \code{\link[stats]{reformulate}}, but trying to avoid the
-\code{paste} currently in \code{\link[stats]{reformulate}} by calling \code{\link[stats]{update.formula}}
+Essentially the same effect as \code{\link[stats:delete.response]{reformulate}}, but trying to avoid the
+\code{paste} currently in \code{\link[stats:delete.response]{reformulate}} by calling \code{\link[stats]{update.formula}}
 (which appears to work over terms).
 Another reasonable way to do this is just \code{paste(outcome, paste(variables, collapse = " + "), sep = " ~ ")}.
 
@@ -69,5 +72,5 @@ format(model$terms)
 
 }
 \seealso{
-\code{\link[stats]{reformulate}}, \code{\link[stats]{update.formula}}
+\code{\link[stats:delete.response]{reformulate}}, \code{\link[stats]{update.formula}}
 }
