@@ -1,8 +1,8 @@
 Package: wrapr
 Type: Package
 Title: Wrap R Tools for Debugging and Parametric Programming
-Version: 2.0.5
-Date: 2020-11-13
+Version: 2.0.6
+Date: 2020-12-06
 Authors@R: c(
     person("John", "Mount", email = "jmount@win-vector.com", role = c("aut", "cre")),
     person("Nina", "Zumel", email = "nzumel@win-vector.com", role = c("aut")),
@@ -28,9 +28,9 @@ Suggests: parallel, knitr, graphics, rmarkdown, R.rsp, tinytest
 VignetteBuilder: knitr, R.rsp
 ByteCompile: true
 NeedsCompilation: no
-Packaged: 2020-11-13 16:19:25 UTC; johnmount
+Packaged: 2020-12-06 17:03:42 UTC; johnmount
 Author: John Mount [aut, cre],
   Nina Zumel [aut],
   Win-Vector LLC [cph]
 Repository: CRAN
-Date/Publication: 2020-11-14 05:50:03 UTC
+Date/Publication: 2020-12-06 17:30:02 UTC
