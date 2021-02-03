@@ -5,10 +5,10 @@
 #' @param x character string to split (length 1 vector)
 #' @param split split pattern
 #' @param ... force later arguments to bind by name
-#' @param ignore.case passed to gregexpr
-#' @param perl passed to gregexpr
-#' @param fixed passed to gregexpr
-#' @param useBytes passed to gregexpr
+#' @param ignore.case passed to \code{gregexpr}
+#' @param perl passed to \code{gregexpr}
+#' @param fixed passed to \code{gregexpr}
+#' @param useBytes passed to \code{gregexpr}
 #' @return list of string segments annotated with is_sep.
 #'
 #' @seealso \code{\link{sinterp}}, \code{\link{si}}
@@ -41,7 +41,7 @@ strsplit_capture <- function(x, split,
   idxs <- as.integer(matches)
   if((length(idxs)<1) || (idxs[[1]]<1)) {
     attr(x, "is_sep") <- FALSE
-    return(x)
+    return(list(x))
   }
   match_posns <- logical(nchar(x)+1)
   match_posns[idxs] <- TRUE
