@@ -4,7 +4,7 @@
 \alias{bc}
 \title{Blank Concatenate. Parse argument as a vector of values allowing "blank separators".}
 \usage{
-bc(s, ..., sep_symbols = ",|", strict = TRUE)
+bc(s, ..., sep_symbols = ",|", strict = TRUE, convert = TRUE)
 }
 \arguments{
 \item{s}{string to parse}
@@ -14,6 +14,8 @@ bc(s, ..., sep_symbols = ",|", strict = TRUE)
 \item{sep_symbols}{characters to consider separators}
 
 \item{strict}{logical, if TRUE throw exception on confusing input}
+
+\item{convert}{logical, if TRUE try to convert from string type to other types}
 }
 \value{
 vector of values
@@ -23,7 +25,7 @@ Separates string data on whitespace and separating symbols into an array.
 }
 \details{
 Can throw exception on lack of explicit value separators, example: \code{bc('"a""b"')} and  non-matching portions.
-Whitespace is normalized to spaces.
+Whitespace is normalized to spaces. Attempts to split on obvious number format boundaries.
 Suggested by Emil Erik Pula Bellamy Begtrup-Bright \url{https://github.com/WinVector/wrapr/issues/12}.
 }
 \examples{
@@ -32,5 +34,9 @@ bc('1 2 "c", d') # returns c("1", "2", "c", "d")
 bc('1 2 3') # returns c(1, 2, 3)
 bc('1 2 "3"') # returns c("1", "2", "3")
 bc('1,2|3.4') # returns c(1, 2, 3.4)
+bc('01 02', convert=FALSE) # returns c("01", "02")
 
+}
+\seealso{
+\code{\link{qc}}, \code{\link{qe}}, \code{\link{qae}}, \code{\link[base]{bquote}}, \code{\link{sx}}
 }

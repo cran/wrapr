@@ -12,13 +12,17 @@
 #'
 #'
 #' qc() uses bquote() .() quasiquotation escaping notation.
+#' Also take care: argumetns are parsed by R before being passed to
+#' qc(). This means 01 is interpreted as 1 and a string such as 0z1
+#' is a syntax error. Some notes on this can be found here:
+#' https://github.com/WinVector/wrapr/issues/15#issuecomment-962092462
 #'
 #'
 #' @param ... items to place into an array
 #' @param .wrapr_private_var_env environment to evaluate in
 #' @return quoted array of character items
 #'
-#' @seealso \code{\link{qe}}, \code{\link{qae}}, \code{\link[base]{bquote}}
+#' @seealso \code{\link{qe}}, \code{\link{qae}}, \code{\link[base]{bquote}}, \code{\link{bc}}, \code{\link{sx}}
 #'
 #' @examples
 #'

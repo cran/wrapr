@@ -1,4 +1,9 @@
 
+# wrapr 2.0.9 2022-01-26
+
+ * Document qc() limitations (ref: https://github.com/WinVector/wrapr/issues/15#issue-1046032267 ).
+ * Add sx() for https://github.com/WinVector/wrapr/issues/15#issue-1046032267 use case.
+
 # wrapr 2.0.8 2021-06-10
 
  * Make calls to order stricter (no names, and convert data.frames), 

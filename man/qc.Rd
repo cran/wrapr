@@ -26,6 +26,10 @@ typical uses both for named and un-named character vectors.
 
 
 qc() uses bquote() .() quasiquotation escaping notation.
+Also take care: argumetns are parsed by R before being passed to
+qc(). This means 01 is interpreted as 1 and a string such as 0z1
+is a syntax error. Some notes on this can be found here:
+https://github.com/WinVector/wrapr/issues/15#issuecomment-962092462
 }
 \examples{
 
@@ -56,5 +60,5 @@ qc(a := c(a=1, b=2)) # returns c(a.a = "1", a.b = "2")
 
 }
 \seealso{
-\code{\link{qe}}, \code{\link{qae}}, \code{\link[base]{bquote}}
+\code{\link{qe}}, \code{\link{qae}}, \code{\link[base]{bquote}}, \code{\link{bc}}, \code{\link{sx}}
 }
