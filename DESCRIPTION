@@ -1,8 +1,8 @@
 Package: wrapr
 Type: Package
 Title: Wrap R Tools for Debugging and Parametric Programming
-Version: 2.0.9
-Date: 2022-01-26
+Version: 2.1.0
+Date: 2023-08-19
 Authors@R: c(
     person("John", "Mount", email = "jmount@win-vector.com", role = c("aut", "cre")),
     person("Nina", "Zumel", email = "nzumel@win-vector.com", role = c("aut")),
@@ -20,16 +20,16 @@ Description: Tools for writing and debugging R code. Provides:
     evaluation interfaces, inspired by 'gtools::strmacro()' and 'base::bquote()'), and more.
 License: GPL-2 | GPL-3
 Encoding: UTF-8
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 Depends: R (>= 3.3.0)
 Imports: utils, methods, stats
 Suggests: parallel, knitr, graphics, rmarkdown, R.rsp, tinytest
 VignetteBuilder: knitr, R.rsp
 ByteCompile: true
 NeedsCompilation: no
-Packaged: 2022-01-26 20:40:09 UTC; johnmount
+Packaged: 2023-08-19 17:10:13 UTC; johnmount
 Author: John Mount [aut, cre],
   Nina Zumel [aut],
   Win-Vector LLC [cph]
 Repository: CRAN
-Date/Publication: 2022-01-26 21:50:02 UTC
+Date/Publication: 2023-08-19 18:00:02 UTC
